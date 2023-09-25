@@ -7,3 +7,9 @@ Zespołowe Przedsięwzięcie Informatyczne
   In directory "../zpi/" run command "docker-compse up" <br>
   Django is running on address: http://0.0.0.0:8000/ <br>
 </p>
+
+<h3> 2. Migrations in django</h3>
+<p> 
+docker-compose exec web python manage.py makemigrations <br>
+docker-compose exec web python manage.py  migrate
+</p>
