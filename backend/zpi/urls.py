@@ -16,7 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from posts.views import get_title
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/get_title/', get_title, name='get_title'),
 ]
