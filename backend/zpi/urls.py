@@ -16,8 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from posts.views import get_title
-
+from events.views import get_title
 
 urlpatterns = [
     path('admin/', admin.site.urls),

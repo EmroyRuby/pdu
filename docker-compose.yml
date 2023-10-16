@@ -31,5 +31,7 @@ services:
       dockerfile: Dockerfile  # Specify the Dockerfile for the Angular service
     ports:
       - "4200:4200"  # Map port 4200 from the host to port 4200 in the container
+    depends_on:
+     - django-app
 
 
