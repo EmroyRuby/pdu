@@ -25,7 +25,7 @@ from rest_framework import permissions
 router = DefaultRouter()
 router.register(r'events', EventViewSet)
 router.register(r'event-notifications', EventNotificationViewSet)
-router.register(r'responses', ResponseViewSet)
+router.register(r'registration-responses', RegistrationResponseViewSet)
 router.register(r'event-registrations', EventRegistrationViewSet)
 router.register(r'categories', CategoryViewSet)
 router.register(r'event-categories', EventCategoryViewSet)

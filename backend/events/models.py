@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+
+
 # Create your models here.
 
 class Event(models.Model):
@@ -40,7 +42,6 @@ class EventRegistration(models.Model):
     objects = models.Manager()
 
 
-
 class Category(models.Model):
     name = models.CharField(max_length=70)
     objects = models.Manager()
@@ -57,4 +58,5 @@ class Comment(models.Model):
     event_id = models.ForeignKey(Event, on_delete=models.CASCADE)
     content = models.CharField(max_length=255)
     objects = models.Manager()
-
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)

@@ -1,6 +1,5 @@
 # Create your views here.
-from rest_framework import permissions
-from rest_framework import viewsets
+from rest_framework import permissions, viewsets
 from .models import Event, EventNotification, RegistrationResponse, EventRegistration, Category, EventCategory, Comment
 from .serializers import (
     EventSerializer, EventNotificationSerializer, RegistrationResponseSerializer, EventRegistrationSerializer,
@@ -28,7 +27,7 @@ class EventViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         # Retrieve the category parameter from the query string (e.g., /events/?category=category_name)
         query_parameters = [
-            'title', 'location', 'is_public', 'category_name', 'start_date', 'end_date',
+            'id', 'title', 'location', 'is_public', 'category_name', 'start_date', 'end_date',
             'price_gte', 'price_lte', 'organizer_id'
         ]
         # If no query parameters have values, return all objects
@@ -40,39 +39,27 @@ class EventViewSet(viewsets.ModelViewSet):
 
         # Start with all events
         queryset = Event.objects.all()
-        title = self.request.query_params.get('title')
-        location = self.request.query_params.get('location')
-        is_public = self.request.query_params.get('is_public')
-        category_name = self.request.query_params.get('category_name')
-        start_date = self.request.query_params.get('start_date')
-        end_date = self.request.query_params.get('end_date')
-        price_lte = self.request.query_params.get('price_lte')
-        price_gte = self.request.query_params.get('price_gte')
-        organizer_id = self.request.query_params.get('organizer_id')
+        query_params = self.request.query_params
+        # define what filter should be applied to each query parameter
+        filter_params = {
+            'id': 'id',
+            'category_name': 'eventcategory__category_id__name__iexact',
+            'title': 'title__iexact',
+            'is_public': 'is_public',
+            'location': 'location__iexact',
+            'price_gte': 'price__gte',
+            'price_lte': 'price__lte',
+            'organizer_id': 'organizer_id',
+            'start_date': 'start_date__gte',
+            'end_date': 'end_date__lte'
+        }
 
-        # If a category name is provided in the query parameters, filter events by that category
-        # iexact - case-insensitive check
-        if category_name:
-            queryset = queryset.filter(eventcategory__category_id__name=category_name)
-        if title:
-            queryset = queryset.filter(title__iexact=title)
-        if is_public:
-            queryset = queryset.filter(is_public=is_public)
-        if location:
-            queryset = queryset.filter(title__iexact=location)
-        if price_gte:
-            queryset = queryset.filter(price__gte=price_gte)
-        if price_lte:
-            queryset = queryset.filter(price__lte=price_lte)
-        if organizer_id:
-            queryset = queryset.filter(organizer_id=organizer_id)
-        # parameter format YYYY-MM-DD
-        if start_date:
-            start_date = date.fromisoformat(start_date)
-            queryset = queryset.filter(start_date__gte=start_date)
-        if end_date:
-            end_date = date.fromisoformat(end_date)
-            queryset = queryset.filter(end_date__lte=end_date)
+        for param, lookup in filter_params.items():
+            value = query_params.get(param)
+            if value:
+                if param in ['start_date', 'end_date']:
+                    value = date.fromisoformat(value)
+                queryset = queryset.filter(**{lookup: value})
 
         return queryset
 
@@ -82,11 +69,62 @@ class EventNotificationViewSet(viewsets.ModelViewSet):
     serializer_class = EventNotificationSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def get_queryset(self):
+        query_parameters = ['id', 'event_id', 'title', 'sent_date_start', 'sent_date_end']
 
-class ResponseViewSet(viewsets.ModelViewSet):
+        # If no query parameters have values, return all objects
+        if not self.request.query_params:
+            return EventNotification.objects.all()
+        # If there are query parameters, but they are invalid
+        elif all(self.request.query_params.get(parameter) is None for parameter in query_parameters):
+            return EventNotification.objects.none()
+
+        filter_params = {
+            'id': 'id',
+            'event_id': 'event_id',
+            'title': 'title__iexact',
+            'sent_date_start': 'sent_date__gte',
+            'sent_date_end': 'sent_date__lte'
+        }
+        queryset = EventNotification.objects.all()
+        query_params = self.request.query_params
+        for param, lookup in filter_params.items():
+            value = query_params.get(param)
+            if value:
+                if param in ['sent_date_start', 'sent_date_end']:
+                    value = date.fromisoformat(value)
+                queryset = queryset.filter(**{lookup: value})
+
+        return queryset
+
+
+class RegistrationResponseViewSet(viewsets.ModelViewSet):
     queryset = RegistrationResponse.objects.all()
     serializer_class = RegistrationResponseSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        query_parameters = ['id', 'content']
+
+        # If no query parameters have values, return all objects
+        if not self.request.query_params:
+            return RegistrationResponse.objects.all()
+        # If there are query parameters, but they are invalid
+        elif all(self.request.query_params.get(parameter) is None for parameter in query_parameters):
+            return RegistrationResponse.objects.none()
+
+        filter_params = {
+            'id': 'id',
+            'content': 'content__iexact',
+        }
+        queryset = RegistrationResponse.objects.all()
+        query_params = self.request.query_params
+        for param, lookup in filter_params.items():
+            value = query_params.get(param)
+            if value:
+                queryset = queryset.filter(**{lookup: value})
+
+        return queryset
 
 
 class EventRegistrationViewSet(viewsets.ModelViewSet):
@@ -94,11 +132,64 @@ class EventRegistrationViewSet(viewsets.ModelViewSet):
     serializer_class = EventRegistrationSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def get_queryset(self):
+        query_parameters = ['id', 'event_id', 'user_id', 'response_id', 'registration_date_start',
+                            'registration_date_end']
+
+        # If no query parameters have values, return all objects
+        if not self.request.query_params:
+            return EventRegistration.objects.all()
+        # If there are query parameters, but they are invalid
+        elif all(self.request.query_params.get(parameter) is None for parameter in query_parameters):
+            return EventRegistration.objects.none()
+
+        filter_params = {
+            'id': 'id',
+            'event_id': 'event_id',
+            'user_id': 'user_id',
+            'response_id': 'response_id',
+            'registration_date_start': 'registration_date__gte',
+            'registration_date_end': 'registration_date__lte'
+        }
+        queryset = EventRegistration.objects.all()
+        query_params = self.request.query_params
+        for param, lookup in filter_params.items():
+            value = query_params.get(param)
+            if value:
+                if param in ['registration_date_start', 'registration_date_end']:
+                    value = date.fromisoformat(value)
+                queryset = queryset.filter(**{lookup: value})
+
+        return queryset
+
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        query_parameters = ['id', 'name']
+
+        # If no query parameters have values, return all objects
+        if not self.request.query_params:
+            return Category.objects.all()
+        # If there are query parameters, but they are invalid
+        elif all(self.request.query_params.get(parameter) is None for parameter in query_parameters):
+            return Category.objects.none()
+
+        filter_params = {
+            'id': 'id',
+            'name': 'name__iexact',
+        }
+        queryset = Category.objects.all()
+        query_params = self.request.query_params
+        for param, lookup in filter_params.items():
+            value = query_params.get(param)
+            if value:
+                queryset = queryset.filter(**{lookup: value})
+
+        return queryset
 
 
 class EventCategoryViewSet(viewsets.ModelViewSet):
@@ -106,8 +197,57 @@ class EventCategoryViewSet(viewsets.ModelViewSet):
     serializer_class = EventCategorySerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def get_queryset(self):
+        query_parameters = ['id', 'event_id', 'category_id']
+
+        # If no query parameters have values, return all objects
+        if not self.request.query_params:
+            return EventCategory.objects.all()
+        # If there are query parameters, but they are invalid
+        elif all(self.request.query_params.get(parameter) is None for parameter in query_parameters):
+            return EventCategory.objects.none()
+
+        filter_params = {
+            'id': 'id',
+            'event_id': 'event_id',
+            'category_id': 'category_id'
+        }
+        queryset = EventCategory.objects.all()
+        query_params = self.request.query_params
+        for param, lookup in filter_params.items():
+            value = query_params.get(param)
+            if value:
+                queryset = queryset.filter(**{lookup: value})
+
+        return queryset
+
 
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        query_parameters = ['id', 'user_id', 'event_id', 'content']
+
+        # If no query parameters have values, return all objects
+        if not self.request.query_params:
+            return Comment.objects.all()
+        # If there are query parameters, but they are invalid
+        elif all(self.request.query_params.get(parameter) is None for parameter in query_parameters):
+            return Comment.objects.none()
+
+        filter_params = {
+            'id': 'id',
+            'user_id': 'user_id',
+            'event_id': 'event_id',
+            'content': 'content__iexact'
+        }
+        queryset = Comment.objects.all()
+        query_params = self.request.query_params
+        for param, lookup in filter_params.items():
+            value = query_params.get(param)
+            if value:
+                queryset = queryset.filter(**{lookup: value})
+
+        return queryset
