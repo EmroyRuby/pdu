@@ -1,0 +1,35 @@
+<div class="container">
+    <button class="btn btn-light mt-3" (click)="goBackToEvents()">
+        <i class="fa fa-chevron-left" style="width: 20px;"></i>
+        Back
+    </button>
+    <h1 class="my-4">{{ event.title }}</h1>
+  <div class="card p-4">
+    <div class="card-body">
+        <div class="row">
+        <!-- Left Column - Event Image -->
+        <div class="col-md-5">
+            <img [src]="event.image" class="card-img-top" alt="{{ event.title }}">
+        </div>
+    
+        <!-- Right Column - Short Info and Description -->
+        <div class="col-md-7">
+            <ul class="list-group list-group-flush mb-3">
+                <li class="list-group-item"><strong>Date and Time:</strong> {{ event.dateTime }}</li>
+                <li class="list-group-item"><strong>Location:</strong> {{ event.location }}</li>
+                <li class="list-group-item"><strong>Tags:</strong> {{ event.tags.join(', ') }}</li>
+                <li class="list-group-item"><strong>Public:</strong> {{ event.isPublic ? 'Yes' : 'No' }}</li>
+            </ul>
+            <div class="text-center">
+                <button class="btn btn-primary">Sign up</button>
+            </div>
+        </div>
+        </div>
+            <!-- Description -->
+            <div class="mt-3">
+                <h5>Description</h5>
+                <p>{{ event.description }}</p>
+            </div>
+        </div>
+    </div>
+</div>

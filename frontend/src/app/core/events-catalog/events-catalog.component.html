@@ -1,0 +1,91 @@
+<div class="container">
+  <h1 class="my-4">Upcoming Events</h1>
+  <!-- Search Bar -->
+  <form class="d-flex mb-3" role="search">
+    <input class="form-control me-2" type="search" placeholder="Search by title" (input)="filterbyTitle(searchTitle.value)" #searchTitle>
+  </form>
+  <div class="btn-group">
+    <!-- Dropdown Button for Tags Selection -->
+    <div class="dropdown">
+      <button class="btn btn-light dropdown-toggle mb-3 me-md-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        Filter by Tags
+      </button>
+      <ul class="dropdown-menu p-2">
+        <li *ngFor="let tag of tags">
+          <label class="form-check-label" style="display: block;" >
+            <input type="checkbox" class="form-check-input" [checked]="isTagSelected(tag)" (change)="filterByTag(tag)"> {{ tag }}
+          </label>
+        </li>
+      </ul>
+    </div>
+    <!-- Dropdown Button for Dates Selection -->
+    <div class="dropdown">
+      <button class="btn btn-light dropdown-toggle mb-3 me-md-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        Filter by Dates
+      </button>
+      <ul class="dropdown-menu p-2">
+        <div class="mb-3">
+          <label for="startDate">Start Date:</label>
+          <input type="date" id="startDate" class="form-control" #startDate>
+        </div>
+        <div class="mb-3">
+          <label for="endDate">End Date:</label>
+          <input type="date" id="endDate" class="form-control" #endDate>
+        </div>
+        <div>
+          <button class="btn btn-primary" (click)="filterByDates(startDate.value, endDate.value)">Filter</button>
+        </div>
+      </ul>
+    </div>
+    <!-- Dropdown Button for Visibility Selection -->
+    <div class="dropdown">
+      <button class="btn btn-light dropdown-toggle mb-3 me-md-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        Filter by Visibility
+      </button>
+      <ul class="dropdown-menu p-2">
+        <li *ngFor="let vis of visibility">
+          <label class="form-check-label" style="display: block;" >
+            <input type="checkbox" class="form-check-input" [checked]="isVisSelected(vis)" (change)="filterByVisibility(vis)"> {{ vis }}
+          </label>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <!-- Selected Filters List -->
+  <div id="selectedFilters" *ngIf="filters.selectedTags.length > 0">
+    <div class="btn-group mb-3">
+      <button *ngFor="let selectedTag of filters.selectedTags" type="button" class="btn btn-secondary me-md-2" (click)="removeSelectedTag(selectedTag)">
+        {{ selectedTag }}
+        <i class="fa fa-times"></i>
+      </button>
+      <button *ngFor="let selectedVis of filters.selectedVisibility" type="button" class="btn btn-secondary me-md-2" (click)="removeSelectedVis(selectedVis)">
+        {{ selectedVis }}
+        <i class="fa fa-times"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Event Cards -->
+  <div class="row">
+    <div class="col-md-6" *ngFor="let event of events">
+      <div class="card mb-4" (click)="onCardClick(event)">
+        <img src="{{ event.image }}" class="card-img-top" alt="{{ event.title }}">
+        <div class="card-body">
+          <h5 class="card-title">{{ event.title }}</h5>
+          <div class="card-text mb-2">
+            <i class="fa fa-calendar" style="width: 20px;"></i>
+            {{ event.dateTime | date:'dd MMM yyyy, HH:mm' }}
+          </div>
+          <div class="card-text mb-2">
+            <i class="fa fa-location-arrow" style="width: 20px;"></i>
+            {{ event.location }}
+          </div>
+          <div class="card-text mb-2">
+            <i class="fa fa-tag" style="width: 20px;"></i>
+            {{ event.tags.join(', ') }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
