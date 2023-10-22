@@ -1,3 +1,4 @@
+
 """
 Django settings for zpi project.
 
@@ -41,6 +42,7 @@ INSTALLED_APPS = [
     'events',
     'rest_framework',
     'drf_yasg',
+    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [

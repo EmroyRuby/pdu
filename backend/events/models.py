@@ -26,7 +26,7 @@ class EventNotification(models.Model):
     objects = models.Manager()
 
 
-class Response(models.Model):
+class RegistrationResponse(models.Model):
     content = models.CharField(max_length=50)
     objects = models.Manager()
 
@@ -34,7 +34,7 @@ class Response(models.Model):
 class EventRegistration(models.Model):
     event_id = models.ForeignKey(Event, on_delete=models.CASCADE)
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
-    response_id = models.ForeignKey(Response, on_delete=models.CASCADE)
+    response_id = models.ForeignKey(RegistrationResponse, on_delete=models.CASCADE)
     registration_date = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     objects = models.Manager()

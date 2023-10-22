@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Event, EventNotification, Response, EventRegistration, Category, EventCategory, Comment
+from .models import Event, EventNotification, RegistrationResponse, EventRegistration, Category, EventCategory, Comment
 
 class EventSerializer(serializers.ModelSerializer):
     class Meta:
@@ -11,9 +11,9 @@ class EventNotificationSerializer(serializers.ModelSerializer):
         model = EventNotification
         fields = '__all__'
 
-class ResponseSerializer(serializers.ModelSerializer):
+class RegistrationResponseSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Response
+        model = RegistrationResponse
         fields = '__all__'
 
 class EventRegistrationSerializer(serializers.ModelSerializer):
