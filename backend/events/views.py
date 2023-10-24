@@ -1,5 +1,6 @@
 # Create your views here.
 from rest_framework import permissions, viewsets
+from rest_framework.authentication import SessionAuthentication
 from .models import Event, EventNotification, RegistrationResponse, EventRegistration, Category, EventCategory, Comment
 from .serializers import (
     EventSerializer, EventNotificationSerializer, RegistrationResponseSerializer, EventRegistrationSerializer,
@@ -8,10 +9,16 @@ from .serializers import (
 from datetime import date
 
 
+# TODO
+#  prevent duplicates in some entities
+#  user authentication,
+#  api for signup and login
+
 class EventViewSet(viewsets.ModelViewSet):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [SessionAuthentication]
 
     # to prevent duplicates
     # def create(self, request, *args, **kwargs):
@@ -68,6 +75,7 @@ class EventNotificationViewSet(viewsets.ModelViewSet):
     queryset = EventNotification.objects.all()
     serializer_class = EventNotificationSerializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [SessionAuthentication]
 
     def get_queryset(self):
         query_parameters = ['id', 'event_id', 'title', 'sent_date_start', 'sent_date_end']
@@ -102,6 +110,7 @@ class RegistrationResponseViewSet(viewsets.ModelViewSet):
     queryset = RegistrationResponse.objects.all()
     serializer_class = RegistrationResponseSerializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [SessionAuthentication]
 
     def get_queryset(self):
         query_parameters = ['id', 'content']
@@ -131,6 +140,7 @@ class EventRegistrationViewSet(viewsets.ModelViewSet):
     queryset = EventRegistration.objects.all()
     serializer_class = EventRegistrationSerializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [SessionAuthentication]
 
     def get_queryset(self):
         query_parameters = ['id', 'event_id', 'user_id', 'response_id', 'registration_date_start',
@@ -167,6 +177,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [SessionAuthentication]
 
     def get_queryset(self):
         query_parameters = ['id', 'name']
@@ -196,6 +207,7 @@ class EventCategoryViewSet(viewsets.ModelViewSet):
     queryset = EventCategory.objects.all()
     serializer_class = EventCategorySerializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [SessionAuthentication]
 
     def get_queryset(self):
         query_parameters = ['id', 'event_id', 'category_id']
@@ -226,6 +238,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [SessionAuthentication]
 
     def get_queryset(self):
         query_parameters = ['id', 'user_id', 'event_id', 'content']

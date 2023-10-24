@@ -1,12 +1,11 @@
 from django.db import models
-from django.contrib.auth.models import User
-
+from accounts.models import AppUser
 
 # Create your models here.
 
 class Event(models.Model):
     title = models.CharField(max_length=70)
-    organizer_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    organizer_id = models.ForeignKey(AppUser, on_delete=models.CASCADE)
     description = models.TextField()
     location = models.CharField(max_length=255)
     is_public = models.BooleanField(default=False)
@@ -35,7 +34,7 @@ class RegistrationResponse(models.Model):
 
 class EventRegistration(models.Model):
     event_id = models.ForeignKey(Event, on_delete=models.CASCADE)
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(AppUser, on_delete=models.CASCADE)
     response_id = models.ForeignKey(RegistrationResponse, on_delete=models.CASCADE)
     registration_date = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -54,7 +53,7 @@ class EventCategory(models.Model):
 
 
 class Comment(models.Model):
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(AppUser, on_delete=models.CASCADE)
     event_id = models.ForeignKey(Event, on_delete=models.CASCADE)
     content = models.CharField(max_length=255)
     objects = models.Manager()

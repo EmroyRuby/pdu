@@ -22,3 +22,8 @@ Zespołowe Przedsięwzięcie Informatyczne
 docker-compose exec django-app python manage.py makemigrations <br>
 docker-compose exec django-app python manage.py  migrate
 </p>
+
+<h3>3. Populate DB with random data</h3>
+<p> 
+docker-compose exec django-app python populate_db.py <br>
+</p>

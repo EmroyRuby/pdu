@@ -1,89 +1,73 @@
+import os
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "zpi.settings")
 import django
 django.setup()
-from django.contrib.auth.models import User
-from events.models import Event, EventNotification, RegistrationResponse, EventRegistration, Category, EventCategory, Comment
+
+from events.models import Event, EventNotification, RegistrationResponse, EventRegistration, Category, EventCategory, \
+    Comment
 from django.utils import timezone
-import os
+from accounts.models import AppUser
+import random
+from faker import Faker
 
 # Set the DJANGO_SETTINGS_MODULE environment variable to point to your project's settings module.
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings")
 
-# Initialize Django.
-
-# Now you can import your Django models and run your code.
+fake = Faker()
 
 
+# Helper function to create a random user
+def create_user():
+    email = fake.email()
+    password = AppUser.objects.make_random_password()
+    username = fake.user_name()
+    user = AppUser.objects.create_user(email=email, password=password, username=username)
+    return user
 
-# Create five User instances
-users = []
-for i in range(5):
-    user = User.objects.create(username=f"user_{i}", password="password123")
-    users.append(user)
 
-# Create five Event instances
-events = []
-for i in range(5):
+# Helper function to create a random event
+def create_event(organizer):
+    title = fake.sentence()
+    description = fake.text()
+    location = fake.city()
+    is_public = random.choice([True, False])
+    price = random.uniform(0, 500)  # random price between 0 and 500
+    capacity = random.randint(0, 1000)
+    days_ahead = random.randint(1, 365)
+    start_date = timezone.now() + timezone.timedelta(days=days_ahead)
+    end_date = start_date + timezone.timedelta(hours=random.randint(1, 72))  # random duration between 1 and 72 hours
     event = Event.objects.create(
-        title=f"Event {i}",
-        organizer_id=users[i],
-        description=f"This is event {i} description.",
-        location=f"Location {i}",
-        is_public=True,
-        price=50.00,
-        capacity=100,
-        registration_end_date=timezone.now() + timezone.timedelta(days=7),
-        start_date=timezone.now() + timezone.timedelta(days=10),
-        end_date=timezone.now() + timezone.timedelta(days=12),
-    )
-    events.append(event)
+        title=title, organizer_id=organizer, description=description, location=location,
+        is_public=is_public, price=price, capacity=capacity, registration_end_date=start_date,
+        start_date=start_date, end_date=end_date)
+    return event
 
-# Create five EventNotification instances
-event_notifications = []
-for i in range(5):
-    event_notification = EventNotification.objects.create(
-        event_id=events[i],
-        title=f"Notification {i}",
-        content=f"This is notification {i} content.",
-    )
-    event_notifications.append(event_notification)
 
-# Create five Response instances
-responses = []
-for i in range(5):
-    response = RegistrationResponse.objects.create(content=f"Response {i}")
-    responses.append(response)
+# Create a specified number of users
+num_users = 10  # specify the number of users you want to create
+users = [create_user() for _ in range(num_users)]
 
-# Create five EventRegistration instances
-event_registrations = []
-for i in range(5):
-    event_registration = EventRegistration.objects.create(
-        event_id=events[i],
-        user_id=users[i],
-        response_id=responses[i],
-    )
-    event_registrations.append(event_registration)
+# Create events for users
+num_events_per_user = 5
+events = []
+for user in users:
+    events.extend(create_event(user) for _ in range(num_events_per_user))
 
-# Create five Category instances
-categories = []
-for i in range(5):
-    category = Category.objects.create(name=f"Category {i}")
-    categories.append(category)
+# Create other entities related to events
+for event in events:
+    # Create EventNotification
+    title = fake.sentence()
+    content = fake.text()
+    EventNotification.objects.create(event_id=event, title=title, content=content)
 
-# Create five EventCategory instances
-event_categories = []
-for i in range(5):
-    event_category = EventCategory.objects.create(
-        event_id=events[i],
-        category_id=categories[i],
-    )
-    event_categories.append(event_category)
+    # Create EventRegistration and RegistrationResponse
+    user = random.choice(users)  # select a random user
+    response = RegistrationResponse.objects.create(content=fake.sentence()[0:45])
+    EventRegistration.objects.create(event_id=event, user_id=user, response_id=response)
 
-# Create five Comment instances
-comments = []
-for i in range(5):
-    comment = Comment.objects.create(
-        user_id=users[i],
-        event_id=events[i],
-        content=f"Comment {i} on Event {i}.",
-    )
-    comments.append(comment)
+    # Create Categories and associate them with events
+    category, created = Category.objects.get_or_create(name=fake.word())  # This avoids category duplication
+    EventCategory.objects.create(event_id=event, category_id=category)
+
+    # Create Comments on events
+    content = fake.text()
+    Comment.objects.create(user_id=user, event_id=event, content=content)
