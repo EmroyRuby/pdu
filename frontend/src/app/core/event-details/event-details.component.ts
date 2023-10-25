@@ -8,14 +8,20 @@ import { Router } from '@angular/router';
   styleUrls: ['./event-details.component.css']
 })
 export class EventDetailsComponent {
+  eventId!: number;
+
   event: any = {
     id: 1,
       title: 'Volleyball group',
       image: '/assets/volleyball.jpg',
-      dateTime: '2023-11-15T15:00:00',
+      startDate: '2023-11-15T15:00:00',
+      endDate: '2023-11-15T17:00:00',
       location: "Wrocław",
+      price: '10.00',
+      capacity: 10,
       tags: ['Sport', 'Volleyball', 'Beginners'],
       isPublic: false,
+      registrationEndDate: '2023-11-14T17:00:00',
       description: 
       'We are a close-knit community of friends who share a passion for volleyball and are on the lookout for like-minded individuals to join us in some thrilling matches during our free time.\
       Our meetups are all about friendly competition, skill improvement, and, most importantly, having a blast on the court. \
@@ -23,7 +29,9 @@ export class EventDetailsComponent {
   };
 
   constructor(private route: ActivatedRoute, private router: Router) {
-    const eventId = this.route.snapshot.paramMap.get('id');
+    this.route.params.subscribe((params) => {
+      this.eventId = +params['id']; // Access the 'id' route parameter
+    });
   }
 
   goBackToEvents() {

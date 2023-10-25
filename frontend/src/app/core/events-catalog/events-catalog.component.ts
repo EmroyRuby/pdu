@@ -46,7 +46,10 @@ export class EventsCatalogComponent implements OnInit {
   onCardClick(event: any) {
     console.log('Card clicked', event);
     const eventId = event.id;
-    this.router.navigate(['event', eventId], { relativeTo: this.route });
+    this.router.navigate(['/events/event'], {
+      queryParams: { id: eventId },
+      relativeTo: this.route,
+    });
   }
 
   filterbyTitle(searchTitle: string) {
