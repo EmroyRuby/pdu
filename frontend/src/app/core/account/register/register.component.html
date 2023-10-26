@@ -8,17 +8,29 @@
             <div class="form-group mb-3">
               <label for="email">Email</label>
               <input type="text" id="email" formControlName="email" class="form-control" placeholder="Enter your email">
+              <div *ngIf="registerForm.get('email')?.hasError('required') && registerForm.get('email')?.touched" class="text-danger">
+                Email is required
+              </div>
             </div>
             <div class="form-group mb-3">
               <label for="password">Password</label>
               <input type="password" id="password" formControlName="password" class="form-control" placeholder="Enter your password">
+              <div *ngIf="registerForm.get('password')?.hasError('required') && registerForm.get('password')?.touched" class="text-danger">
+                Password is required
+              </div>
             </div>
             <div class="form-group">
               <label for="confirmPassword">Confirm Password</label>
               <input type="password" id="confirmPassword" formControlName="confirmPassword" class="form-control" placeholder="Enter your password">
+              <div *ngIf="registerForm.hasError('passwordMismatch')" class="text-danger">
+                Passwords do not match.
+              </div>
+            </div>
+            <div *ngIf="showAlert" class="alert alert-danger" role="alert">
+              Registration failed. Please check your information and try again.
             </div>
             <div class="text-center mb-3">
-              <button type="submit" class="btn btn-primary mt-3">Register</button>
+              <button type="submit" class="btn btn-primary mt-3" [disabled]="registerForm.invalid">Register</button>
             </div>
           </form>
           <p class="text-center">Already have an account? <a routerLink="/login">Login</a></p>

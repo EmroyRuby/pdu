@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
+import { EventService } from '../event.service';
 
 @Component({
   selector: 'app-events-catalog',
@@ -7,26 +8,7 @@ import { Router, ActivatedRoute } from '@angular/router';
   styleUrls: ['./events-catalog.component.css']
 })
 export class EventsCatalogComponent implements OnInit {
-  events: any[] = [
-    {
-      id: 1,
-      title: 'Volleyball group',
-      image: '/assets/volleyball.jpg',
-      dateTime: '2023-11-15T15:00:00',
-      location: "Wrocław",
-      tags: ['Sport', 'Volleyball', 'Beginners'],
-      isPublic: false
-    },
-    {
-      id: 2,
-      title: 'Ballet class',
-      image: '/assets/ballet.jpg',
-      dateTime: '2023-11-05T18:30:00',
-      location: "Wrocław",
-      tags: ['Dance', 'Ballet', 'Beginners'],
-      isPublic: true
-    }
-  ];
+  events: any[] = [];
   tags: any[] = ['Sport', 'Volleyball', 'Beginners', 'Dance', 'Ballet']
   visibility: any[] = ['Public', 'Private']
   filters = {
@@ -38,7 +20,9 @@ export class EventsCatalogComponent implements OnInit {
   }
   isDropdownOpen = false;
 
-  constructor(private router: Router, private route: ActivatedRoute) { }
+  constructor(private router: Router, private route: ActivatedRoute, private eventService: EventService) { 
+    this.events = this.eventService.listEvents();
+  }
 
   ngOnInit() {
   }  
@@ -89,13 +73,6 @@ export class EventsCatalogComponent implements OnInit {
 
 
   applyFilter() {
-    // if (this.filters.selectedTags.length === 0) {
-    //   this.events = this.events;
-    // } else {
-    //   this.events = this.events.filter(event =>
-    //     this.filters.selectedTags.every(tag => event.tags.includes(tag))
-    //   );
-    // }
   }
 
   removeSelectedTag(tagToRemove: string) {

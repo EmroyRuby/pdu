@@ -6,6 +6,6 @@
   <p class="fs-3 fw-bold text-center p-5">Let's spend some time together!</p>
 </div>
 <div class="text-center d-grid gap-2 d-md-block">
-  <button type="button" class="btn btn-light btn-lg p-5 mx-3 mb-3 fw-bold" [routerLink]="['/create-event']">Create an event</button>
+  <button type="button" class="btn btn-light btn-lg p-5 mx-3 mb-3 fw-bold" [routerLink]="['/create-event']" [disabled]="!isLoggedIn()">Create an event</button>
   <button type="button" class="btn btn-light btn-lg p-5 mx-3 mb-3 fw-bold" [routerLink]="['/events']">Find an event</button>
 </div>

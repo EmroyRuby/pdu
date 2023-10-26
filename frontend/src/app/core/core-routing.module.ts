@@ -1,14 +1,13 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { LayoutComponent } from './layout/layout.component';
+import { LayoutComponent } from './layout/layout/layout.component';
 import { HomeComponent } from './home/home.component';
-import { LoginComponent } from './login/login.component';
-import { RegisterComponent } from './register/register.component';
-import { AccountComponent } from './account/account.component';
-import { EventsCatalogComponent } from './events-catalog/events-catalog.component';
-import { EventDetailsComponent } from './event-details/event-details.component';
-import { CreateEventComponent } from './create-event/create-event.component';
-import { RateEventComponent } from './rate-event/rate-event.component';
+import { LoginComponent } from './account/login/login.component';
+import { RegisterComponent } from './account/register/register.component';
+import { ProfileComponent } from './account/profile/profile.component';
+import { EventsCatalogComponent } from './events/events-catalog/events-catalog.component';
+import { EventDetailsComponent } from './events/event-details/event-details.component';
+import { CreateEventComponent } from './events/create-event/create-event.component';
 
 const routes: Routes = [
   {
@@ -29,8 +28,8 @@ const routes: Routes = [
         path: 'register',
         component: RegisterComponent
       }, {
-        path: 'account',
-        component: AccountComponent
+        path: 'profile',
+        component: ProfileComponent
       }, {
         path: 'events',
         component: EventsCatalogComponent
@@ -40,9 +39,6 @@ const routes: Routes = [
       }, {
         path: 'create-event',
         component: CreateEventComponent
-      }, {
-        path: 'my-events/event/rate-event',
-        component: RateEventComponent
       }
     ]
   }, 

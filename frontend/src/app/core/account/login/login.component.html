@@ -13,6 +13,9 @@
                 <label for="password">Password</label>
                 <input type="password" id="password" formControlName="password" class="form-control" placeholder="Enter your password">
               </div>
+              <div *ngIf="loginFailed" class="alert alert-danger mt-3">
+                Login failed. Please check your email and password.
+              </div>
               <div class="text-center mb-3">
                 <button type="submit" class="btn btn-primary mt-3">Login</button>
               </div>

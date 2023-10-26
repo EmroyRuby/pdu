@@ -1,0 +1,23 @@
+<div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header fs-4">User Profile</div>
+          <div class="card-body">
+            <div class="form-group">
+              <label for="email">Email:</label>
+              <input type="text" id="email" class="form-control" [value]="user.email" readonly>
+            </div>
+            <!-- Add more profile information fields as needed -->
+  
+            <div class="mt-3">
+              <button class="btn btn-primary" (click)="editProfile()">Edit Data</button>
+              <button class="btn btn-danger" (click)="deleteAccount()">Delete Account</button>
+              <button class="btn btn-secondary" (click)="logout()">Log Out</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  

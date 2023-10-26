@@ -2,7 +2,7 @@
     <div class="card">
         <div class="card-header fs-4">Create an Event</div>
         <div class="card-body">
-            <form [formGroup]="createEventForm" (ngSubmit)="review()">
+            <form [formGroup]="createEventForm" (ngSubmit)="publish()">
                 <!-- Event Title -->
                 <div class="form-group mb-3">
                     <label for="title">Event Title:</label>
@@ -94,7 +94,7 @@
                 </ng-template>
             
                 <div class="text-center mb-3">
-                    <button type="submit" class="btn btn-primary mt-3">Review</button>
+                    <button type="submit" class="btn btn-primary mt-3">Publish</button>
                 </div>
             </form>
             
