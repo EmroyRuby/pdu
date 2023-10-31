@@ -18,7 +18,7 @@ fake = Faker()
 # Helper function to create a random user
 def create_user():
     email = fake.email()
-    password = AppUser.objects.make_random_password()
+    password = "password123"
     username = fake.user_name()
     user = AppUser.objects.create_user(email=email, password=password, username=username)
     return user
@@ -36,7 +36,7 @@ def create_event(organizer):
     start_date = timezone.now() + timezone.timedelta(days=days_ahead)
     end_date = start_date + timezone.timedelta(hours=random.randint(1, 72))  # random duration between 1 and 72 hours
     event = Event.objects.create(
-        title=title, organizer_id=organizer, description=description, location=location,
+        title=title, user_id=organizer, description=description, location=location,
         is_public=is_public, price=price, capacity=capacity, registration_end_date=start_date,
         start_date=start_date, end_date=end_date)
     return event

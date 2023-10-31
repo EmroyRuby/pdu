@@ -3,6 +3,7 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework.response import Response
 from .models import (Event, EventNotification, RegistrationResponse,
                      EventRegistration, Category, EventCategory, Comment)
+from .my_permissions import IsOwnerOrReadOnly
 from .serializers import (EventSerializer, EventNotificationSerializer,
                           RegistrationResponseSerializer, EventRegistrationSerializer,
                           CategorySerializer, EventCategorySerializer, CommentSerializer)
@@ -11,7 +12,7 @@ from datetime import date
 
 
 class BaseViewSet(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
     authentication_classes = [SessionAuthentication]
 
     filter_params = {}
@@ -51,7 +52,7 @@ class EventViewSet(BaseViewSet):
         'end_date': 'end_date__lte',
         'price_gte': 'price__gte',
         'price_lte': 'price__lte',
-        'organizer_id': 'organizer_id'
+        'user_id': 'user_id'
     }
 
 
@@ -65,6 +66,28 @@ class EventNotificationViewSet(BaseViewSet):
         'sent_date_start': 'sent_date__gte',
         'sent_date_end': 'sent_date__lte'
     }
+
+    def get_queryset(self):
+        # First, filter based on the logged-in user
+        if self.request.user.is_superuser:
+            return self.queryset.all()
+
+        registered_event_ids = EventRegistration.objects.filter(user_id=self.request.user.user_id).values_list(
+            'event_id', flat=True)
+
+        user_notifications = self.queryset.filter(event_id__in=registered_event_ids)
+
+        # Now apply other filters if any
+        query_params = self.request.query_params
+
+        for param, lookup in self.filter_params.items():
+            value = query_params.get(param)
+            if value:
+                if '_date' in param:  # for date fields
+                    value = date.fromisoformat(value)
+                user_notifications = user_notifications.filter(**{lookup: value})
+
+        return user_notifications
 
 
 class RegistrationResponseViewSet(BaseViewSet):
@@ -87,6 +110,25 @@ class EventRegistrationViewSet(BaseViewSet):
         'registration_date_start': 'registration_date__gte',
         'registration_date_end': 'registration_date__lte'
     }
+
+    def get_queryset(self):
+        # First, filter based on the logged-in user
+        if self.request.user.is_superuser:
+            return self.queryset.all()
+
+        user_registrations = self.queryset.filter(user_id=self.request.user.user_id)
+
+        # Now apply other filters if any
+        query_params = self.request.query_params
+
+        for param, lookup in self.filter_params.items():
+            value = query_params.get(param)
+            if value:
+                if '_date' in param:  # for date fields
+                    value = date.fromisoformat(value)
+                user_registrations = user_registrations.filter(**{lookup: value})
+
+        return user_registrations
 
 
 class CategoryViewSet(BaseViewSet):

@@ -34,6 +34,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class EventCategorySerializer(serializers.ModelSerializer):
     category_name = serializers.ReadOnlyField(source='category.name')
+
     class Meta:
         model = EventCategory
         fields = '__all__'

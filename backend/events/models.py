@@ -1,11 +1,12 @@
 from django.db import models
 from accounts.models import AppUser
 
+
 # Create your models here.
 
 class Event(models.Model):
     title = models.CharField(max_length=70)
-    organizer_id = models.ForeignKey(AppUser, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(AppUser, on_delete=models.CASCADE)
     description = models.TextField()
     location = models.CharField(max_length=255)
     is_public = models.BooleanField(default=False)
