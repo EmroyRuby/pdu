@@ -13,6 +13,8 @@ from datetime import date
 #  prevent duplicates in some entities
 #  user authentication,
 #  api for signup and login
+# przyjmowac liste parametrow w zapytaniu
+# zwracac od razu liste kategorii w zapytaniu o kategorie danego eventu
 
 class EventViewSet(viewsets.ModelViewSet):
     queryset = Event.objects.all()
