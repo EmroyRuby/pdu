@@ -1,5 +1,8 @@
 from django.contrib import admin
-from .models import AppUser, Event, EventNotification, RegistrationResponse, EventRegistration, Category, EventCategory, Comment
+
+from .models import AppUser, Event, EventNotification, RegistrationResponse, EventRegistration, Category, EventCategory, \
+    Comment
+
 # Register your models here.
 
 # Registering the models with basic functionality

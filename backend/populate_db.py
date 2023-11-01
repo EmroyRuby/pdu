@@ -36,7 +36,7 @@ def create_event(organizer):
     start_date = timezone.now() + timezone.timedelta(days=days_ahead)
     end_date = start_date + timezone.timedelta(hours=random.randint(1, 72))  # random duration between 1 and 72 hours
     event = Event.objects.create(
-        title=title, user_id=organizer, description=description, location=location,
+        title=title, user=organizer, description=description, location=location,
         is_public=is_public, price=price, capacity=capacity, registration_end_date=start_date,
         start_date=start_date, end_date=end_date)
     return event
@@ -57,17 +57,17 @@ for event in events:
     # Create EventNotification
     title = fake.sentence()
     content = fake.text()
-    EventNotification.objects.create(event_id=event, title=title, content=content)
+    EventNotification.objects.create(event=event, title=title, content=content)
 
     # Create EventRegistration and RegistrationResponse
     user = random.choice(users)  # select a random user
     response = RegistrationResponse.objects.create(content=fake.sentence()[0:45])
-    EventRegistration.objects.create(event_id=event, user_id=user, response_id=response)
+    EventRegistration.objects.create(event=event, user=user, response=response)
 
     # Create Categories and associate them with events
     category, created = Category.objects.get_or_create(name=fake.word())  # This avoids category duplication
-    EventCategory.objects.create(event_id=event, category_id=category)
+    EventCategory.objects.create(event=event, category=category)
 
     # Create Comments on events
     content = fake.text()
-    Comment.objects.create(user_id=user, event_id=event, content=content)
+    Comment.objects.create(user=user, event=event, content=content)

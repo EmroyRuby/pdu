@@ -1,6 +1,9 @@
+from datetime import date
+
 from rest_framework import permissions, viewsets, status
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.response import Response
+
 from .models import (Event, EventNotification, RegistrationResponse,
                      EventRegistration, Category, EventCategory, Comment)
 from .my_permissions import IsOwnerOrReadOnly
@@ -8,8 +11,10 @@ from .serializers import (EventSerializer, EventNotificationSerializer,
                           RegistrationResponseSerializer, EventRegistrationSerializer,
                           CategorySerializer, EventCategorySerializer, CommentSerializer)
 
-from datetime import date
 
+# TODO
+# ogarnac, ze owner wydarzenia widzi wszystkie rejestracje na swoj wlasny event
+# dodac edycje wlasnego konta
 
 class BaseViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
@@ -40,6 +45,7 @@ class BaseViewSet(viewsets.ModelViewSet):
 
 
 class EventViewSet(BaseViewSet):
+    permission_classes = [permissions.AllowAny, IsOwnerOrReadOnly]
     queryset = Event.objects.all()
     serializer_class = EventSerializer
     filter_params = {
@@ -47,12 +53,12 @@ class EventViewSet(BaseViewSet):
         'title': 'title__iexact',
         'location': 'location__iexact',
         'is_public': 'is_public',
-        'category_name': 'eventcategory__category_id__name__iexact',
+        'category_name': 'eventcategory__category__name__iexact',
         'start_date': 'start_date__gte',
         'end_date': 'end_date__lte',
         'price_gte': 'price__gte',
         'price_lte': 'price__lte',
-        'user_id': 'user_id'
+        'user': 'user'
     }
 
 
@@ -61,7 +67,7 @@ class EventNotificationViewSet(BaseViewSet):
     serializer_class = EventNotificationSerializer
     filter_params = {
         'id': 'id',
-        'event_id': 'event_id',
+        'event': 'event',
         'title': 'title__iexact',
         'sent_date_start': 'sent_date__gte',
         'sent_date_end': 'sent_date__lte'
@@ -70,12 +76,11 @@ class EventNotificationViewSet(BaseViewSet):
     def get_queryset(self):
         # First, filter based on the logged-in user
         if self.request.user.is_superuser:
-            return self.queryset.all()
-
-        registered_event_ids = EventRegistration.objects.filter(user_id=self.request.user.user_id).values_list(
-            'event_id', flat=True)
-
-        user_notifications = self.queryset.filter(event_id__in=registered_event_ids)
+            user_notifications = self.queryset.all()
+        else:
+            registered_event_ids = EventRegistration.objects.filter(user=self.request.user).values_list(
+                'event', flat=True)
+            user_notifications = self.queryset.filter(event__in=registered_event_ids)
 
         # Now apply other filters if any
         query_params = self.request.query_params
@@ -91,6 +96,7 @@ class EventNotificationViewSet(BaseViewSet):
 
 
 class RegistrationResponseViewSet(BaseViewSet):
+    permission_classes = [permissions.AllowAny, IsOwnerOrReadOnly]
     queryset = RegistrationResponse.objects.all()
     serializer_class = RegistrationResponseSerializer
     filter_params = {
@@ -104,9 +110,9 @@ class EventRegistrationViewSet(BaseViewSet):
     serializer_class = EventRegistrationSerializer
     filter_params = {
         'id': 'id',
-        'event_id': 'event_id',
-        'user_id': 'user_id',
-        'response_id': 'response_id',
+        'event': 'event',
+        'user': 'user',
+        'response': 'response',
         'registration_date_start': 'registration_date__gte',
         'registration_date_end': 'registration_date__lte'
     }
@@ -114,9 +120,11 @@ class EventRegistrationViewSet(BaseViewSet):
     def get_queryset(self):
         # First, filter based on the logged-in user
         if self.request.user.is_superuser:
-            return self.queryset.all()
-
-        user_registrations = self.queryset.filter(user_id=self.request.user.user_id)
+            user_registrations = self.queryset.all()
+        else:
+            owned_events_ids = Event.objects.filter(user=self.request.user).values_list(
+                'id', flat=True)
+            user_registrations = self.queryset.filter(event__in=owned_events_ids)
 
         # Now apply other filters if any
         query_params = self.request.query_params
@@ -132,6 +140,7 @@ class EventRegistrationViewSet(BaseViewSet):
 
 
 class CategoryViewSet(BaseViewSet):
+    permission_classes = [permissions.AllowAny, IsOwnerOrReadOnly]
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     filter_params = {
@@ -141,28 +150,30 @@ class CategoryViewSet(BaseViewSet):
 
 
 class EventCategoryViewSet(BaseViewSet):
+    permission_classes = [permissions.AllowAny, IsOwnerOrReadOnly]
     queryset = EventCategory.objects.all()
     serializer_class = EventCategorySerializer
     filter_params = {
         'id': 'id',
-        'event_id': 'event_id',
-        'category_id': 'category_id'
+        'event': 'event',
+        'category': 'category'
     }
 
     def list(self, request, *args, **kwargs):
-        if 'event_id' in request.query_params:
+        if 'event' in request.query_params:
             queryset = self.filter_queryset(self.get_queryset())
-            category_names = [event_category.category_id.name for event_category in queryset]
+            category_names = [event_category.category.name for event_category in queryset]
             return Response(category_names, status=status.HTTP_200_OK)
         return super(EventCategoryViewSet, self).list(request, *args, **kwargs)
 
 
 class CommentViewSet(BaseViewSet):
+    permission_classes = [permissions.AllowAny, IsOwnerOrReadOnly]
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     filter_params = {
         'id': 'id',
-        'user_id': 'user_id',
-        'event_id': 'event_id',
+        'user': 'user',
+        'event': 'event',
         'content': 'content__iexact'
     }

@@ -1,4 +1,5 @@
 from django.db import models
+
 from accounts.models import AppUser
 
 
@@ -6,7 +7,7 @@ from accounts.models import AppUser
 
 class Event(models.Model):
     title = models.CharField(max_length=70)
-    user_id = models.ForeignKey(AppUser, on_delete=models.CASCADE)
+    user = models.ForeignKey(AppUser, on_delete=models.CASCADE)
     description = models.TextField()
     location = models.CharField(max_length=255)
     is_public = models.BooleanField(default=False)
@@ -21,7 +22,7 @@ class Event(models.Model):
 
 
 class EventNotification(models.Model):
-    event_id = models.ForeignKey(Event, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
     title = models.CharField(max_length=70)
     content = models.TextField()
     sent_date = models.DateTimeField(auto_now_add=True)
@@ -34,9 +35,9 @@ class RegistrationResponse(models.Model):
 
 
 class EventRegistration(models.Model):
-    event_id = models.ForeignKey(Event, on_delete=models.CASCADE)
-    user_id = models.ForeignKey(AppUser, on_delete=models.CASCADE)
-    response_id = models.ForeignKey(RegistrationResponse, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    user = models.ForeignKey(AppUser, on_delete=models.CASCADE)
+    response = models.ForeignKey(RegistrationResponse, on_delete=models.CASCADE)
     registration_date = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     objects = models.Manager()
@@ -48,14 +49,14 @@ class Category(models.Model):
 
 
 class EventCategory(models.Model):
-    event_id = models.ForeignKey(Event, on_delete=models.CASCADE)
-    category_id = models.ForeignKey(Category, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
     objects = models.Manager()
 
 
 class Comment(models.Model):
-    user_id = models.ForeignKey(AppUser, on_delete=models.CASCADE)
-    event_id = models.ForeignKey(Event, on_delete=models.CASCADE)
+    user = models.ForeignKey(AppUser, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
     content = models.CharField(max_length=255)
     objects = models.Manager()
     created_at = models.DateTimeField(auto_now_add=True)

@@ -1,10 +1,12 @@
-from django.contrib.auth import get_user_model, login, logout
+from django.contrib.auth import login, logout, update_session_auth_hash
+from rest_framework import permissions, status
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.exceptions import ValidationError
-from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializers import UserRegisterSerializer, UserLoginSerializer, UserSerializer
-from rest_framework import permissions, status
+from rest_framework.views import APIView
+
+from events import my_permissions
+from .serializers import UserRegisterSerializer, UserLoginSerializer, UserSerializer, PasswordChangeSerializer
 from .validations import custom_validation, validate_email, validate_password
 
 
@@ -65,3 +67,39 @@ class UserView(APIView):
     def get(self, request):
         serializer = UserSerializer(request.user)
         return Response({'user': serializer.data}, status=status.HTTP_200_OK)
+
+
+class UserEdit(APIView):
+    permission_classes = [permissions.IsAuthenticated, my_permissions.IsOwnerOrReadOnly]
+    authentication_classes = [SessionAuthentication]
+
+    ##
+    def put(self, request):
+        # Use the UserSerializer to validate the request data
+        serializer = UserSerializer(request.user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            # Return the updated user data
+            return Response({'user': serializer.data}, status=status.HTTP_200_OK)
+
+        # If the data is not valid, return the errors
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ChangePasswordView(APIView):
+    permission_classes = (permissions.IsAuthenticated, my_permissions.IsOwnerOrReadOnly)
+    authentication_classes = [SessionAuthentication]
+
+    def post(self, request, *args, **kwargs):
+        serializer = PasswordChangeSerializer(data=request.data)
+        if serializer.is_valid():
+            # Check old password
+            if not request.user.check_password(serializer.data.get('old_password')):
+                return Response({"old_password": ["Wrong password."]}, status=status.HTTP_400_BAD_REQUEST)
+            # set_password also hashes the password that the user will get
+            request.user.set_password(serializer.data.get('new_password'))
+            request.user.save()
+            # Updating the session hash to avoid logging the user out
+            update_session_auth_hash(request, request.user)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

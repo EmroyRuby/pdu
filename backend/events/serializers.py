@@ -1,4 +1,5 @@
 from rest_framework import serializers
+
 from .models import Event, EventNotification, RegistrationResponse, EventRegistration, Category, EventCategory, Comment
 
 
