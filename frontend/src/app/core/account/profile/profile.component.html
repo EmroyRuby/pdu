@@ -6,14 +6,17 @@
           <div class="card-body">
             <div class="form-group">
               <label for="email">Email:</label>
-              <input type="text" id="email" class="form-control" [value]="user.email" readonly>
+              <input type="text" id="email" class="form-control" [value]="user.email" readonly disabled>
             </div>
-            <!-- Add more profile information fields as needed -->
-  
-            <div class="mt-3">
-              <button class="btn btn-primary" (click)="editProfile()">Edit Data</button>
-              <button class="btn btn-danger" (click)="deleteAccount()">Delete Account</button>
-              <button class="btn btn-secondary" (click)="logout()">Log Out</button>
+            <div class="form-group mt-2">
+              <label for="password">Password:</label>
+                <input type="password" id="password"class="form-control" [value]="user.password" readonly disabled>
+
+            </div>
+            <div class="mt-4">
+              <button class="btn btn-primary mb-3 me-md-2" (click)="editProfile()">Edit Data</button>
+              <button class="btn btn-danger mb-3 me-md-2" (click)="deleteAccount()">Delete Account</button>
+              <button class="btn btn-secondary mb-3 me-md-2" (click)="logout()">Log Out</button>
             </div>
           </div>
         </div>

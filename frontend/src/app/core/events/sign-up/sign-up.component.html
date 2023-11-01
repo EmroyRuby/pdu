@@ -1,0 +1,70 @@
+<div class="container p-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header fs-4">Sign up for {{event.title}}</div>
+                <div class="card-body p-3">
+                    <form [formGroup]="signUpForm" (ngSubmit)="signUp()">
+                        <div class="form-group mb-3">
+                            <label for="email">Email</label>
+                            <input type="text" id="email" formControlName="email" class="form-control" placeholder="Enter your email">
+                            <div *ngIf="signUpForm.get('email')?.hasError('required') && signUpForm.get('email')?.touched" class="text-danger">
+                                Email is required
+                            </div>
+                        </div>
+                    </form>
+                    <h5>Summary</h5>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <ul class="list-group list-group-flush mb-3">
+                                <li class="list-group-item">
+                                    <strong>Title:</strong>
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>Organiser:</strong>
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>Location:</strong>
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>Price:</strong>
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>Start Date:</strong>
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>End Date:</strong>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-9">
+                            <ul class="list-group list-group-flush mb-3">
+                                <li class="list-group-item">
+                                    {{ event.title }}
+                                </li>
+                                <li class="list-group-item">
+                                    {{ event.organiser }}
+                                </li>
+                                <li class="list-group-item">
+                                    {{ event.location }}
+                                </li>
+                                <li class="list-group-item">
+                                    {{ event.price | currency:'USD':'symbol' }}
+                                </li>
+                                <li class="list-group-item">
+                                    {{ event.startDate | date: 'dd MMM yyyy, HH:mm' }}
+                                </li>
+                                <li class="list-group-item">
+                                    {{ event.endDate | date: 'dd MMM yyyy, HH:mm' }}
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="text-center p-3">
+                        <button class="btn btn-primary" (click)="signUp()" [disabled]="signUpForm.invalid">Sign up</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
