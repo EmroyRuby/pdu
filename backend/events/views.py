@@ -118,7 +118,6 @@ class EventRegistrationViewSet(BaseViewSet):
     serializer_class = EventRegistrationSerializer
     filter_params = {
         'id': 'id',
-        'event': 'event',
         'user': 'user',
         'response': 'response',
         'registration_date_start': 'registration_date__gte',
@@ -127,14 +126,14 @@ class EventRegistrationViewSet(BaseViewSet):
 
     def get_queryset(self):
         query_params = self.request.query_params
-        user_registrations = self.queryset.all()
+        user_registrations = self.queryset.filter(user=self.request.user)
 
-        event_id = query_params.get('event')
-        if event_id:
+        event = query_params.get('event')
+        if event:
             try:
-                event = Event.objects.get(id=event_id)
+                event = Event.objects.get(id=event)
                 if event.user == self.request.user or self.request.user.is_superuser:
-                    user_registrations = user_registrations.filter(event=event)
+                    user_registrations = EventRegistration.objects.filter(event=event)
                 else:
                     # If the user is neither the owner nor a superuser, return an empty queryset
                     return EventRegistration.objects.none()

@@ -34,7 +34,7 @@ class UserLoginSerializer(serializers.Serializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserModel
-        fields = ('email', 'username')
+        fields = ('email', 'username', 'user_id')
 
     def is_valid(self, raise_exception=False):
         # Call the parent class's is_valid method

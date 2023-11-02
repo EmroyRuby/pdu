@@ -103,3 +103,29 @@ class ChangePasswordView(APIView):
             update_session_auth_hash(request, request.user)
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class DeleteAccount(APIView):
+    permission_classes = [permissions.IsAuthenticated, my_permissions.IsOwnerOrReadOnlyOrSuperuser]
+    authentication_classes = [SessionAuthentication]
+
+    def post(self, request):
+        # Retrieve the authenticated user
+        user = request.user
+        password = request.data.get('password')
+
+        # If password is not provided, return a bad request
+        if not password:
+            return Response({"detail": "Password is required to delete account."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Check if provided password is correct
+        if not user.check_password(password):
+            return Response({"detail": "Incorrect password."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Ensure the user has permissions to delete the account
+        if request.user == user or request.user.is_superuser:
+            user.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        # In case the user does not have permission
+        return Response({"detail": "You do not have permission to delete this account."}, status=status.HTTP_403_FORBIDDEN)
