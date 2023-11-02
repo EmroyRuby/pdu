@@ -5,17 +5,14 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework.response import Response
 
 from .models import (Event, EventNotification, RegistrationResponse,
-                     EventRegistration, Category, EventCategory, Comment)
+                     EventRegistration, Category, Comment)
 from .my_permissions import IsOwnerOrReadOnlyOrSuperuser
 from .serializers import (EventSerializer, EventNotificationSerializer,
                           RegistrationResponseSerializer, EventRegistrationSerializer,
-                          CategorySerializer, EventCategorySerializer, CommentSerializer)
+                          CategorySerializer, CommentSerializer)
 
 
 # TODO
-# event-registrations - user widzi swoje rejestracje na event
-# event-registrations?event - user widzi wszystkie rejestracje innych na swoj event
-# filtrowanie po tagach i patternie tytulu
 # dodac usuwanie konta
 
 
@@ -40,31 +37,35 @@ class BaseViewSet(viewsets.ModelViewSet):
         for param, lookup in self.filter_params.items():
             value = query_params.get(param)
             if value:
-                if '_date' in param:  # for date fields
+                if param == 'category':  # Special handling for categories
+                    value = value.split(',')
+                elif '_date' in param:  # for date fields
                     value = date.fromisoformat(value)
                 queryset = queryset.filter(**{lookup: value})
-
         return queryset
 
 
 class EventViewSet(BaseViewSet):
-
     permission_classes = [permissions.AllowAny, IsOwnerOrReadOnlyOrSuperuser]
     queryset = Event.objects.all()
     serializer_class = EventSerializer
     filter_params = {
         'id': 'id',
-        'title': 'title__iexact',
+        'title': 'title__icontains',
         'location': 'location__iexact',
         'is_public': 'is_public',
-        'category_name': 'eventcategory__category__name__iexact',
+        'category': 'categories__name__in',
         'start_date': 'start_date__gte',
         'end_date': 'end_date__lte',
         'price_gte': 'price__gte',
         'price_lte': 'price__lte',
-        'user': 'user'
+        'user': 'user',
     }
 
+    #to associate event with current user id
+    def perform_create(self, serializer):
+        # Set the user to the current user
+        serializer.save(user=self.request.user)
 
 
 
@@ -110,7 +111,8 @@ class RegistrationResponseViewSet(BaseViewSet):
         'content': 'content__iexact'
     }
 
-
+# at /api/event-registrations user will see his own registrations
+# at /api/event-registrations?event=ID user will see all event registrations on his own event
 class EventRegistrationViewSet(BaseViewSet):
     queryset = EventRegistration.objects.all()
     serializer_class = EventRegistrationSerializer
@@ -124,17 +126,22 @@ class EventRegistrationViewSet(BaseViewSet):
     }
 
     def get_queryset(self):
-        # First, filter based on the logged-in user
-        if self.request.user.is_superuser:
-            user_registrations = self.queryset.all()
-        else:
-            owned_events_ids = Event.objects.filter(user=self.request.user).values_list(
-                'id', flat=True)
-            user_registrations = self.queryset.filter(event__in=owned_events_ids)
-
-        # Now apply other filters if any
         query_params = self.request.query_params
+        user_registrations = self.queryset.all()
 
+        event_id = query_params.get('event')
+        if event_id:
+            try:
+                event = Event.objects.get(id=event_id)
+                if event.user == self.request.user or self.request.user.is_superuser:
+                    user_registrations = user_registrations.filter(event=event)
+                else:
+                    # If the user is neither the owner nor a superuser, return an empty queryset
+                    return EventRegistration.objects.none()
+            except Event.DoesNotExist:
+                return EventRegistration.objects.none()
+
+        # Apply other filters
         for param, lookup in self.filter_params.items():
             value = query_params.get(param)
             if value:
@@ -153,24 +160,6 @@ class CategoryViewSet(BaseViewSet):
         'id': 'id',
         'name': 'name__iexact'
     }
-
-
-class EventCategoryViewSet(BaseViewSet):
-    permission_classes = [permissions.AllowAny, IsOwnerOrReadOnlyOrSuperuser]
-    queryset = EventCategory.objects.all()
-    serializer_class = EventCategorySerializer
-    filter_params = {
-        'id': 'id',
-        'event': 'event',
-        'category': 'category'
-    }
-
-    def list(self, request, *args, **kwargs):
-        if 'event' in request.query_params:
-            queryset = self.filter_queryset(self.get_queryset())
-            category_names = [event_category.category.name for event_category in queryset]
-            return Response(category_names, status=status.HTTP_200_OK)
-        return super(EventCategoryViewSet, self).list(request, *args, **kwargs)
 
 
 class CommentViewSet(BaseViewSet):

@@ -5,6 +5,11 @@ from accounts.models import AppUser
 
 # Create your models here.
 
+class Category(models.Model):
+    name = models.CharField(max_length=70)
+    objects = models.Manager()
+
+
 class Event(models.Model):
     title = models.CharField(max_length=70)
     user = models.ForeignKey(AppUser, on_delete=models.CASCADE)
@@ -19,6 +24,7 @@ class Event(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     photo = models.ImageField(upload_to='events', null=True)
+    categories = models.ManyToManyField(Category)
     objects = models.Manager()
 
 
@@ -41,17 +47,6 @@ class EventRegistration(models.Model):
     response = models.ForeignKey(RegistrationResponse, on_delete=models.CASCADE)
     registration_date = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    objects = models.Manager()
-
-
-class Category(models.Model):
-    name = models.CharField(max_length=70)
-    objects = models.Manager()
-
-
-class EventCategory(models.Model):
-    event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
     objects = models.Manager()
 
 

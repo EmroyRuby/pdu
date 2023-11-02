@@ -148,6 +148,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'accounts.AppUser'
-LOGIN_URL = "http://localhost:8000/api/login"
+LOGIN_URL = "http://localhost:8000/api/accounts/login"
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 MEDIA_URL = "/media/"

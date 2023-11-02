@@ -20,9 +20,11 @@ from django.urls import path, include
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
+from rest_framework.authentication import SessionAuthentication
 from rest_framework.routers import DefaultRouter
 
-from events.views import *
+from events.views import EventViewSet, RegistrationResponseViewSet, EventNotificationViewSet, EventRegistrationViewSet, \
+    CategoryViewSet, CommentViewSet
 from zpi import settings
 
 # from accounts.views import *
@@ -33,7 +35,6 @@ router.register(r'event-notifications', EventNotificationViewSet)
 router.register(r'registration-responses', RegistrationResponseViewSet)
 router.register(r'event-registrations', EventRegistrationViewSet)
 router.register(r'categories', CategoryViewSet)
-router.register(r'event-categories', EventCategoryViewSet)
 router.register(r'comments', CommentViewSet)
 
 schema_view = get_schema_view(
