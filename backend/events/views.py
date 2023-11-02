@@ -13,8 +13,12 @@ from .serializers import (EventSerializer, EventNotificationSerializer,
 
 
 # TODO
-# ogarnac, ze owner wydarzenia widzi wszystkie rejestracje na swoj wlasny event
-# dodac edycje wlasnego konta
+# event-registrations - user widzi swoje rejestracje na event
+# event-registrations?event - user widzi wszystkie rejestracje innych na swoj event
+# w eventach zwracac liste kategorii i zdjecie i mail organizatora
+# filtrowanie po tagach i patternie tytulu
+# dodac usuwanie konta
+
 
 class BaseViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
@@ -45,6 +49,7 @@ class BaseViewSet(viewsets.ModelViewSet):
 
 
 class EventViewSet(BaseViewSet):
+
     permission_classes = [permissions.AllowAny, IsOwnerOrReadOnly]
     queryset = Event.objects.all()
     serializer_class = EventSerializer
@@ -60,6 +65,8 @@ class EventViewSet(BaseViewSet):
         'price_lte': 'price__lte',
         'user': 'user'
     }
+
+
 
 
 class EventNotificationViewSet(BaseViewSet):

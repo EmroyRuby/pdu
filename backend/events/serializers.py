@@ -1,12 +1,28 @@
 from rest_framework import serializers
 
 from .models import Event, EventNotification, RegistrationResponse, EventRegistration, Category, EventCategory, Comment
-
+from accounts.models import AppUser
 
 class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
-        fields = '__all__'
+        fields = ('id', 'title', 'description', 'location', 'is_public', 'price', 'capacity',
+                  'registration_end_date', 'start_date', 'end_date', 'created_at', 'updated_at',
+                  'user', 'user_email', 'categories')
+
+
+    def get_categories(self, obj):
+        categories = Category.objects.filter(eventcategory__event=obj)
+        category_names = [category.name for category in categories]
+        return category_names
+
+    def get_user_email(self, obj):
+        user = AppUser.objects.get(user_id=obj.user_id)
+        return user.email
+
+
+    categories = serializers.SerializerMethodField()
+    user_email = serializers.SerializerMethodField()
 
 
 class EventNotificationSerializer(serializers.ModelSerializer):
@@ -30,7 +46,7 @@ class EventRegistrationSerializer(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = '__all__'
+        fields = ('name',)
 
 
 class EventCategorySerializer(serializers.ModelSerializer):
