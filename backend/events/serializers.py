@@ -8,7 +8,7 @@ class EventSerializer(serializers.ModelSerializer):
         model = Event
         fields = ('id', 'title', 'description', 'location', 'is_public', 'price', 'capacity',
                   'registration_end_date', 'start_date', 'end_date', 'created_at', 'updated_at',
-                  'user', 'user_email', 'categories')
+                  'user', 'user_email', 'categories', 'photo')
 
 
     def get_categories(self, obj):

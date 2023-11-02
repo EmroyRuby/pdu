@@ -6,7 +6,7 @@ from rest_framework.response import Response
 
 from .models import (Event, EventNotification, RegistrationResponse,
                      EventRegistration, Category, EventCategory, Comment)
-from .my_permissions import IsOwnerOrReadOnly
+from .my_permissions import IsOwnerOrReadOnlyOrSuperuser
 from .serializers import (EventSerializer, EventNotificationSerializer,
                           RegistrationResponseSerializer, EventRegistrationSerializer,
                           CategorySerializer, EventCategorySerializer, CommentSerializer)
@@ -15,13 +15,12 @@ from .serializers import (EventSerializer, EventNotificationSerializer,
 # TODO
 # event-registrations - user widzi swoje rejestracje na event
 # event-registrations?event - user widzi wszystkie rejestracje innych na swoj event
-# w eventach zwracac liste kategorii i zdjecie i mail organizatora
 # filtrowanie po tagach i patternie tytulu
 # dodac usuwanie konta
 
 
 class BaseViewSet(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnlyOrSuperuser]
     authentication_classes = [SessionAuthentication]
 
     filter_params = {}
@@ -50,7 +49,7 @@ class BaseViewSet(viewsets.ModelViewSet):
 
 class EventViewSet(BaseViewSet):
 
-    permission_classes = [permissions.AllowAny, IsOwnerOrReadOnly]
+    permission_classes = [permissions.AllowAny, IsOwnerOrReadOnlyOrSuperuser]
     queryset = Event.objects.all()
     serializer_class = EventSerializer
     filter_params = {
@@ -103,7 +102,7 @@ class EventNotificationViewSet(BaseViewSet):
 
 
 class RegistrationResponseViewSet(BaseViewSet):
-    permission_classes = [permissions.AllowAny, IsOwnerOrReadOnly]
+    permission_classes = [permissions.AllowAny, IsOwnerOrReadOnlyOrSuperuser]
     queryset = RegistrationResponse.objects.all()
     serializer_class = RegistrationResponseSerializer
     filter_params = {
@@ -147,7 +146,7 @@ class EventRegistrationViewSet(BaseViewSet):
 
 
 class CategoryViewSet(BaseViewSet):
-    permission_classes = [permissions.AllowAny, IsOwnerOrReadOnly]
+    permission_classes = [permissions.AllowAny, IsOwnerOrReadOnlyOrSuperuser]
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     filter_params = {
@@ -157,7 +156,7 @@ class CategoryViewSet(BaseViewSet):
 
 
 class EventCategoryViewSet(BaseViewSet):
-    permission_classes = [permissions.AllowAny, IsOwnerOrReadOnly]
+    permission_classes = [permissions.AllowAny, IsOwnerOrReadOnlyOrSuperuser]
     queryset = EventCategory.objects.all()
     serializer_class = EventCategorySerializer
     filter_params = {
@@ -175,7 +174,7 @@ class EventCategoryViewSet(BaseViewSet):
 
 
 class CommentViewSet(BaseViewSet):
-    permission_classes = [permissions.AllowAny, IsOwnerOrReadOnly]
+    permission_classes = [permissions.AllowAny, IsOwnerOrReadOnlyOrSuperuser]
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     filter_params = {

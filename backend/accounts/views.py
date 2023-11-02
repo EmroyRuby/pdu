@@ -70,7 +70,7 @@ class UserView(APIView):
 
 
 class UserEdit(APIView):
-    permission_classes = [permissions.IsAuthenticated, my_permissions.IsOwnerOrReadOnly]
+    permission_classes = [permissions.IsAuthenticated, my_permissions.IsOwnerOrReadOnlyOrSuperuser]
     authentication_classes = [SessionAuthentication]
 
     ##
@@ -87,7 +87,7 @@ class UserEdit(APIView):
 
 
 class ChangePasswordView(APIView):
-    permission_classes = (permissions.IsAuthenticated, my_permissions.IsOwnerOrReadOnly)
+    permission_classes = (permissions.IsAuthenticated, my_permissions.IsOwnerOrReadOnlyOrSuperuser)
     authentication_classes = [SessionAuthentication]
 
     def post(self, request, *args, **kwargs):

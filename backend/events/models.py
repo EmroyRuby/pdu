@@ -18,6 +18,7 @@ class Event(models.Model):
     end_date = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    photo = models.ImageField(upload_to='events', null=True)
     objects = models.Manager()
 
 
