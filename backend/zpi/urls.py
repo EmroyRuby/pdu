@@ -23,7 +23,7 @@ from rest_framework import permissions
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.routers import DefaultRouter
 
-from events.views import EventViewSet, RegistrationResponseViewSet, EventNotificationViewSet, EventRegistrationViewSet, \
+from events.views import EventViewSet, EventNotificationViewSet, EventRegistrationViewSet, \
     CategoryViewSet, CommentViewSet
 from zpi import settings
 
@@ -32,7 +32,6 @@ from zpi import settings
 router = DefaultRouter()
 router.register(r'events', EventViewSet)
 router.register(r'event-notifications', EventNotificationViewSet)
-router.register(r'registration-responses', RegistrationResponseViewSet)
 router.register(r'event-registrations', EventRegistrationViewSet)
 router.register(r'categories', CategoryViewSet)
 router.register(r'comments', CommentViewSet)

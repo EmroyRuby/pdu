@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
-from .models import Event, EventNotification, RegistrationResponse, EventRegistration, Category, Comment
 from accounts.models import AppUser
+from .models import Event, EventNotification, EventRegistration, Category, Comment
 
 
 class EventSerializer(serializers.ModelSerializer):
@@ -12,10 +12,11 @@ class EventSerializer(serializers.ModelSerializer):
         required=False
     )
     user_email = serializers.SerializerMethodField()
+    remaining_slots = serializers.SerializerMethodField()
 
     class Meta:
         model = Event
-        fields = ('id', 'title', 'description', 'location', 'is_public', 'price', 'capacity',
+        fields = ('id', 'title', 'description', 'location', 'is_public', 'price', 'capacity', 'remaining_slots',
                   'registration_end_date', 'start_date', 'end_date', 'created_at', 'updated_at',
                   'user', 'user_email', 'categories', 'photo')
         read_only_fields = ('user', 'user_email',)  # setting user as read-only
@@ -24,6 +25,11 @@ class EventSerializer(serializers.ModelSerializer):
         user = AppUser.objects.get(user_id=obj.user_id)
         return user.email
 
+    # TODO WYJEBAC MODEL RESPONSE I USTAWIC NA TRUE/FALSE
+    # POPRAWIC TO GET REMAINING SLOTS
+    def get_remaining_slots(self, obj):
+        registrations = EventRegistration.objects.filter(event_id=obj.id)
+
 
 class EventNotificationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -31,29 +37,18 @@ class EventNotificationSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class RegistrationResponseSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = RegistrationResponse
-        fields = '__all__'
-
-
 class EventRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = EventRegistration
-        fields = ('event', 'event_title', 'user', 'user_email', 'response', 'response_content'
+        fields = ('id', 'event', 'event_title', 'is_registered', 'user_email'
                   , 'registration_date', 'updated_at')
 
-    user_email = serializers.SerializerMethodField()
-    response_content = serializers.SerializerMethodField()
+    user_email = serializers.SerializerMethodField(read_only=True)
     event_title = serializers.SerializerMethodField()
 
     def get_user_email(self, obj):
         user = AppUser.objects.get(user_id=obj.user_id)
         return user.email
-
-    def get_response_content(self, obj):
-        response = RegistrationResponse.objects.get(id=obj.response_id)
-        return response.content
 
     def get_event_title(self, obj):
         event = Event.objects.get(id=obj.event_id)
@@ -63,7 +58,7 @@ class EventRegistrationSerializer(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ('name',)
+        fields = ('name', 'id')
 
 
 class CommentSerializer(serializers.ModelSerializer):

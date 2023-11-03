@@ -13,4 +13,16 @@ class IsOwnerOrReadOnlyOrSuperuser(permissions.BasePermission):
             return True
 
         # Write permissions are only allowed to the owner of the snippet.
-        return obj.user_id == request.user or request.user.is_superuser
+        return obj.user == request.user or request.user.is_superuser
+
+
+class CanViewAndPostOnly(permissions.BasePermission):
+    """
+    Custom permission to only allow viewing and adding of objects.
+    """
+
+    def has_permission(self, request, view):
+        # Only allow GET or POST requests
+        if request.method in ['GET', 'POST']:
+            return True
+        return False

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import AppUser, Event, EventNotification, RegistrationResponse, EventRegistration, Category, Comment
+from .models import AppUser, Event, EventNotification, EventRegistration, Category, Comment
 
 # Register your models here.
 
@@ -8,7 +8,6 @@ from .models import AppUser, Event, EventNotification, RegistrationResponse, Eve
 admin.site.register(AppUser)
 admin.site.register(Event)
 admin.site.register(EventNotification)
-admin.site.register(RegistrationResponse)
 admin.site.register(EventRegistration)
 admin.site.register(Category)
 admin.site.register(Comment)

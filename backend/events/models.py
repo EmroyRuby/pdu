@@ -36,18 +36,16 @@ class EventNotification(models.Model):
     objects = models.Manager()
 
 
-class RegistrationResponse(models.Model):
-    content = models.CharField(max_length=50)
-    objects = models.Manager()
-
-
 class EventRegistration(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     user = models.ForeignKey(AppUser, on_delete=models.CASCADE)
-    response = models.ForeignKey(RegistrationResponse, on_delete=models.CASCADE)
+    is_registered = models.BooleanField(default=True)
     registration_date = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     objects = models.Manager()
+
+    class Meta:
+        unique_together = ('user', 'event')  # This ensures that the combination of user and event is unique
 
 
 class Comment(models.Model):
