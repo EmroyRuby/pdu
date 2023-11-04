@@ -1,0 +1,123 @@
+<div class="container p-5">
+    <div class="card">
+        <div class="card-header fs-4">Create an Event</div>
+        <div class="card-body">
+            <form [formGroup]="createEventForm" (ngSubmit)="publish()">
+                <!-- Event Title -->
+                <div class="form-group mb-3">
+                    <label for="title">Event Title:</label>
+                    <input type="text" class="form-control" id="title" formControlName="title" placeholder="Enter event title" required>
+                    <div *ngIf="createEventForm.get('title')?.hasError('required') && createEventForm.get('title')?.touched" class="text-danger">
+                        Title is required
+                    </div>
+                </div>
+            
+                <!-- Event Description -->
+                <div class="form-group mb-3">
+                    <label for="description">Description:</label>
+                    <textarea class="form-control" id="description" formControlName="description" rows="4" placeholder="Enter event description" required></textarea>
+                    <div *ngIf="createEventForm.get('description')?.hasError('required') && createEventForm.get('description')?.touched" class="text-danger">
+                        Description is required
+                    </div>
+                </div>
+            
+                <!-- Event Image -->
+                <div class="form-group mb-3">
+                    <label for="image">Event Image:</label>
+                    <input type="file" class="form-control-file" id="image" formControlName="image">
+                </div>
+            
+                <!-- Event Location -->
+                <div class="form-group mb-3">
+                    <label for="location">Location:</label>
+                    <input type="text" class="form-control" id="location" formControlName="location" placeholder="Enter event location" required>
+                    <div *ngIf="createEventForm.get('location')?.hasError('required') && createEventForm.get('location')?.touched" class="text-danger">
+                        Location is required
+                    </div>
+                </div>
+            
+                <!-- Is Public Checkbox -->
+                <div class="form-check mb-3">
+                    <input type="checkbox" class="form-check-input" id="isPublic" formControlName="isPublic">
+                    <label class="form-check-label" for="isPublic">Public Event</label>
+                </div>
+            
+                <!-- Price -->
+                <div class="form-group mb-3">
+                    <label for="price">Price:</label>
+                    <div class="input-group">
+                        <input type="number" step="0.01" class="form-control col-6" id="price" formControlName="price" placeholder="Enter ticket price">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">$</span>
+                        </div>
+                    </div>
+                </div>
+            
+                <!-- Capacity -->
+                <div class="form-group mb-3">
+                    <label for="capacity">Capacity:</label>
+                    <input type="number" class="form-control" id="capacity" formControlName="capacity" placeholder="Enter event capacity">
+                </div>
+            
+                <!-- Registration End Date -->
+                <div class="form-group mb-3">
+                    <label for="registrationEndDate">Registration End Date:</label>
+                    <input type="datetime-local" class="form-control" id="registrationEndDate" formControlName="registrationEndDate">
+                </div>
+            
+                <!-- Event Start Date -->
+                <div class="form-group mb-3">
+                    <label for="startDate">Event Start Date:</label>
+                    <input type="datetime-local" class="form-control" id="startDate" formControlName="startDate">
+                </div>
+            
+                <!-- Event End Date -->
+                <div class="form-group mb-3">
+                    <label for="endDate">Event End Date:</label>
+                    <input type="datetime-local" class="form-control" id="endDate" formControlName="endDate">
+                </div>
+                  
+                <!-- Tags -->
+                <div class="form-group mb-3">
+                    <label for="newTag">Add Tags</label>
+                    <div class="input-group">
+                      <input type="text" class="form-control" list="datalistOptions" id="exampleDataList" placeholder="Enter tag" autocomplete="off" #newTag>
+                        <datalist id="datalistOptions">
+                            <option *ngFor="let tag of tags" [value]="tag"></option>
+                        </datalist>    
+                      <div class="input-group-append">
+                        <button class="btn btn-primary" type="button" (click)="addTag(newTag.value)">Add</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="btn-group mb-3">
+                    <button *ngFor="let selectedTag of selectedTags" type="button" class="btn btn-secondary me-md-2" (click)="removeSelectedTag(selectedTag)">
+                      {{ selectedTag }}
+                      <i class="fa fa-times"></i>
+                    </button>
+                </div>
+
+                <!-- Success Modal -->
+                <ng-template #successModal let-c="close">
+                    <div class="modal-header">
+                    <h5 class="modal-title">Success</h5>
+                    <button type="button" class="close" (click)="c('Close click')">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    </div>
+                    <div class="modal-body">
+                    Event published successfully!
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" (click)="c('OK')">OK</button>
+                    </div>
+                </ng-template>
+            
+                <div class="text-center mb-3">
+                    <button type="submit" class="btn btn-primary mt-3">Save</button>
+                </div>
+            </form>
+            
+        </div>
+    </div>
+</div>
