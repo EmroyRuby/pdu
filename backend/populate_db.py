@@ -6,7 +6,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "zpi.settings")
 import django
 django.setup()
 
-from events.models import Event, EventNotification, RegistrationResponse, EventRegistration, Category, Comment
+from events.models import Event, EventNotification, EventRegistration, Category, Comment
 from accounts.models import AppUser
 import random
 from faker import Faker
@@ -16,7 +16,6 @@ fake = Faker()
 # Deleting all data
 Comment.objects.all().delete()
 EventRegistration.objects.all().delete()
-RegistrationResponse.objects.all().delete()
 EventNotification.objects.all().delete()
 Event.objects.all().delete()
 Category.objects.all().delete()
@@ -67,8 +66,8 @@ for event in events:
     EventNotification.objects.create(event=event, title=title, content=content)
 
     user = random.choice(users)
-    response = RegistrationResponse.objects.create(content=fake.sentence()[0:45])
-    EventRegistration.objects.create(event=event, user=user, response=response)
+    is_registered = True
+    EventRegistration.objects.create(event=event, user=user, is_registered=is_registered)
 
     content = fake.text()
     Comment.objects.create(user=user, event=event, content=content)
