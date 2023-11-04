@@ -24,22 +24,44 @@ export class EventDetailsComponent {
         this.event = this.eventService.getEventById(this.eventId);
       }
     });
-    console.log(this.event.isPublic)
-    console.log(this.authService.isLoggedIn())
     if (!this.event.isPublic && !this.authService.isLoggedIn()) {
       this.isSignUpDisabled = true;
     }
   }
 
-  goBackToEvents() {
-    this.router.navigate(['/events']);
+  goBack() {
+    window.history.back();
+  }
+
+  isSignedUp(): boolean {
+    return this.eventService.isSignedUp(this.eventId);
+  }
+
+  isOrganiser(): boolean {
+    return this.eventService.isOrganiser(this.eventId);
   }
 
   signUp() {
-    console.log('Sign up');
-    this.router.navigate(['/events/event/sign-up'], {
+    this.router.navigate(['/event/sign-up'], {
       queryParams: { id: this.eventId },
       relativeTo: this.route,
     });
+  }
+
+  signOut() {
+    this.eventService.signOut(this.eventId);
+    window.location.reload();
+  }
+
+  edit() {
+    this.router.navigate(['/event/edit'], {
+      queryParams: { id: this.eventId },
+      relativeTo: this.route,
+    });
+  }
+
+  delete() {
+    this.eventService.deleteEvent(this.eventId);
+    this.goBack();
   }
 }

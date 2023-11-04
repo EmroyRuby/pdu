@@ -26,15 +26,15 @@ export class EventsCatalogComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.events = this.eventService.listEvents(this.filters);
+    this.filters = this.eventService.filters;
+    this.events = this.eventService.listEvents();
     this.filteredEvents = this.events;
     this.tags = this.eventService.getTags();
   }  
 
   onCardClick(event: any) {
-    console.log('Card clicked', event);
     const eventId = event.id;
-    this.router.navigate([this.router.url + '/event'], {
+    this.router.navigate(['/event'], {
       queryParams: { id: eventId },
       relativeTo: this.route,
     });
@@ -42,13 +42,7 @@ export class EventsCatalogComponent implements OnInit {
 
   filterbyTitle(searchTitle: string) {
     this.filters.titlePattern = searchTitle;
-    if (!searchTitle) {
-      this.filteredEvents = this.events;
-    } else {
-      this.filteredEvents = this.events.filter(event =>
-        event.title.toLowerCase().includes(searchTitle.toLowerCase())
-      );
-    }
+    this.applyFilter();
   }
 
   filterByTag(tag: string) {
@@ -87,6 +81,8 @@ export class EventsCatalogComponent implements OnInit {
 
 
   applyFilter() {
+    this.eventService.filters = this.filters;
+    this.events = this.eventService.listEvents();
   }
 
   removeSelectedTag(tagToRemove: string) {
@@ -95,6 +91,7 @@ export class EventsCatalogComponent implements OnInit {
       if (index !== -1) {
         this.filters.tags.splice(index, 1);
       }
+      this.applyFilter();
     }
   }
 
@@ -104,15 +101,18 @@ export class EventsCatalogComponent implements OnInit {
       if (index !== -1) {
         this.filters.accessibility.splice(index, 1);
       }
+      this.applyFilter();
     }
   }
 
   clearStartDateFilter() {
     this.filters.startDate = null;
+    this.applyFilter();
   }
 
   clearEndDateFilter() {
     this.filters.endDate = null;
+    this.applyFilter();
   }
 
   isTagSelected(tag: string): boolean {

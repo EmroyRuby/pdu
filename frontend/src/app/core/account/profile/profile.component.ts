@@ -15,14 +15,12 @@ export class ProfileComponent {
   }
 
   editProfile() {
-    this.router.navigate(['/edit-profile']);
+    this.router.navigate(['/profile/edit']);
   }
 
   deleteAccount() {
-    if (confirm('Are you sure you want to delete your account?')) {
-      this.accountService.deleteUser(this.user.email);
-      this.router.navigate(['/login']);
-    }
+    this.accountService.deleteUser(this.user.email);
+    this.router.navigate(['/login']);
   }
 
   logout() {

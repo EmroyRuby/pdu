@@ -26,10 +26,10 @@ export class LoginComponent implements OnInit {
   login() {
     if (this.accountService.login(this.loginForm.value.email, this.loginForm.value.password)) {
       this.user = this.accountService.getUserData();
-      this.loginFailed = false; // Reset the loginFailed flag
+      this.loginFailed = false;
       this.router.navigate(['/profile']);
     } else {
-      this.loginFailed = true; // Set the loginFailed flag to true for unsuccessful login
+      this.loginFailed = true;
     }
   }
 }

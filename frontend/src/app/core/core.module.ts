@@ -6,12 +6,16 @@ import { NavComponent } from './layout/nav/nav.component';
 import { HomeComponent } from './home/home.component';
 import { LoginComponent } from './account/login/login.component';
 import { RegisterComponent } from './account/register/register.component';
+import { MyEventsComponent } from './events/my-events/my-events.component';
 import { EventsCatalogComponent } from './events/events-catalog/events-catalog.component';
 import { EventDetailsComponent } from './events/event-details/event-details.component';
 import { SignUpComponent } from './events/sign-up/sign-up.component';
 import { CreateEventComponent } from './events/create-event/create-event.component';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { EditEventComponent } from './events/edit-event/edit-event.component';
+import { ProfileComponent } from './account/profile/profile.component';
+import { EditProfileComponent } from './account/edit-profile/edit-profile.component';
 
 @NgModule({
   imports: [
@@ -32,8 +36,12 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     HomeComponent,
     RegisterComponent,
     LoginComponent,
+    ProfileComponent,
+    EditProfileComponent,
+    MyEventsComponent,
     EventsCatalogComponent,
     EventDetailsComponent,
+    EditEventComponent,
     SignUpComponent,
     CreateEventComponent
   ]

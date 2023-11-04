@@ -36,7 +36,14 @@ export class SignUpComponent {
     }
   }
 
+  goBackToEvent() {
+    this.router.navigate(['/event'], {
+      queryParams: { id: this.eventId }
+    });
+  }
+
   signUp() {
-    console.log('Sign up');
+    this.eventService.signUp(this.eventId);
+    this.goBackToEvent();
   }
 }

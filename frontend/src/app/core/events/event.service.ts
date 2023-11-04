@@ -68,28 +68,67 @@ export class EventService {
       tags: ['Art', 'Crafts'],
     },
   ];
+  filters: EventsFilter = {
+    titlePattern: null,
+    tags: null,
+    accessibility: null,
+    startDate: new Date,
+    endDate: null
+  };
 
-  listEvents(filters: EventsFilter): Event[] {
+  listEvents(): Event[] {
+    return this.events;
+  }
+
+  listMyEvents(role: number): Event[] {
+    if (role === 1) {
+      return this.events.filter(event => event.organiser === 'Volleyball Club A');
+    } else if (role === 2) {
+      return this.events;
+    }
     return this.events;
   }
 
   getTags(): string[] {
+    console.log("All the tags: " + this.tags);
     return this.tags;
   }
 
   getEventById(eventId: number): any {
-    return this.events.find(event => event.id === eventId);
+    const event = this.events.find(event => event.id === eventId);
+    console.log("Getting event of id=" + eventId + ". Event: ", event);
+    return event;
   }
 
   addEvent(event: any): number {
-    return 3;
+    console.log("Adding event: " + event);
+    event.id = 5;
+    this.events.push(event);
+    return 5;
   }
 
   editEvent(eventId: number, updatedEvent: any): void {
-
+    console.log("Editing event of id=" + eventId + ". New value: ", updatedEvent);
   }
 
   deleteEvent(eventId: number): void {
+    console.log("Deleting event of id=" + eventId);
   
+  }
+
+  isSignedUp(eventId: number): boolean {
+    return true;
+  }
+
+  isOrganiser(eventId: number): boolean {
+    return true;
+  }
+
+  signUp(eventId: number): void {
+    
+  }
+  
+  signOut(eventId: number): void {
+    
   }
 }
