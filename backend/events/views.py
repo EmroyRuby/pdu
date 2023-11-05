@@ -1,5 +1,6 @@
 from datetime import date
 
+from django.shortcuts import get_object_or_404
 from rest_framework import permissions, viewsets, status
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.response import Response
@@ -21,7 +22,8 @@ class BaseViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         # If no query parameters have values, return default queryset
         if not self.request.query_params:
-            return self.queryset
+            queryset = super().get_queryset()
+            return queryset.all()
 
         # If there are query parameters, but they are invalid
         elif all(self.request.query_params.get(param) is None for param in self.filter_params):
@@ -42,7 +44,7 @@ class BaseViewSet(viewsets.ModelViewSet):
 
 
 class EventViewSet(BaseViewSet):
-    permission_classes = [permissions.AllowAny, IsOwnerOrReadOnlyOrSuperuser]
+    permission_classes = [IsOwnerOrReadOnlyOrSuperuser]
     queryset = Event.objects.all()
     serializer_class = EventSerializer
     filter_params = {
@@ -115,11 +117,16 @@ class EventRegistrationViewSet(BaseViewSet):
         user = self.request.user
         event_id = request.data.get('event')
 
+        event_obj = get_object_or_404(Event, id=event_id)
+
         # Check if the user is already registered for this event
         if EventRegistration.objects.filter(user=user, event=event_id).exists():
             event_registration = EventRegistration.objects.get(user=user, event=event_id)
             if event_registration.is_registered:
                 return Response({"detail": "User is already registered for this event."},
+                                status=status.HTTP_400_BAD_REQUEST)
+            elif event_obj.capacity == 0:
+                return Response({"detail": "All slots are taken"},
                                 status=status.HTTP_400_BAD_REQUEST)
             else:
                 event_registration.is_registered = True
@@ -187,7 +194,7 @@ class CategoryViewSet(BaseViewSet):
 
 
 class CommentViewSet(BaseViewSet):
-    permission_classes = [permissions.AllowAny, IsOwnerOrReadOnlyOrSuperuser]
+    permission_classes = [IsOwnerOrReadOnlyOrSuperuser]
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     filter_params = {

@@ -25,10 +25,9 @@ class EventSerializer(serializers.ModelSerializer):
         user = AppUser.objects.get(user_id=obj.user_id)
         return user.email
 
-    # TODO WYJEBAC MODEL RESPONSE I USTAWIC NA TRUE/FALSE
-    # POPRAWIC TO GET REMAINING SLOTS
     def get_remaining_slots(self, obj):
-        registrations = EventRegistration.objects.filter(event_id=obj.id)
+        registrations = EventRegistration.objects.filter(event_id=obj.id, is_registered=True)
+        return obj.capacity - len(registrations)
 
 
 class EventNotificationSerializer(serializers.ModelSerializer):
@@ -40,19 +39,15 @@ class EventNotificationSerializer(serializers.ModelSerializer):
 class EventRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = EventRegistration
-        fields = ('id', 'event', 'event_title', 'is_registered', 'user_email'
+        fields = ('id', 'event', 'event_detail', 'is_registered', 'user_email'
                   , 'registration_date', 'updated_at')
 
     user_email = serializers.SerializerMethodField(read_only=True)
-    event_title = serializers.SerializerMethodField()
+    event_detail = EventSerializer(source='event', read_only=True)
 
     def get_user_email(self, obj):
         user = AppUser.objects.get(user_id=obj.user_id)
         return user.email
-
-    def get_event_title(self, obj):
-        event = Event.objects.get(id=obj.event_id)
-        return event.title
 
 
 class CategorySerializer(serializers.ModelSerializer):
