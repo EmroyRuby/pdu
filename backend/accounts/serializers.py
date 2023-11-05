@@ -11,7 +11,7 @@ UserModel = AppUser
 class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserModel
-        fields = ('email', 'username', 'password')  # Explicitly state the fields
+        fields = ('user_id', 'email', 'username', 'password')  # Explicitly state the fields
         extra_kwargs = {'password': {'write_only': True}}  # Password should be write-only
 
     def create(self, clean_data):
@@ -22,13 +22,13 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
 class UserLoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
-    password = serializers.CharField(write_only=True)  # Although not returned, good to be explicit
+    password = serializers.CharField(write_only=True)
 
-    def check_user(self, clean_data):
-        user = authenticate(username=clean_data['email'], password=clean_data['password'])
-        if not user:
-            raise ValidationError('Invalid login credentials')
-        return user
+    def validate(self, data):
+        user = authenticate(**data)
+        if user:
+            return user
+        raise serializers.ValidationError("Unable to log in with provided credentials.")
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -52,6 +52,7 @@ class UserSerializer(serializers.ModelSerializer):
 
         return super_valid and not bool(self._errors)
 
+
 class PasswordChangeSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True)
     new_password = serializers.CharField(required=True)
@@ -62,4 +63,3 @@ class PasswordChangeSerializer(serializers.Serializer):
         # This will check the password against the validators defined in the settings.
         validate_password(value, self.context.get('user'))
         return value
-

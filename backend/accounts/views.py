@@ -15,16 +15,14 @@ class UserRegister(APIView):
     authentication_classes = [SessionAuthentication]
 
     def post(self, request):
-        try:
-            clean_data = custom_validation(request.data)
-        except:
-            return Response(status=status.HTTP_417_EXPECTATION_FAILED)
-        serializer = UserRegisterSerializer(data=clean_data)
+        serializer = UserRegisterSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            user = serializer.create(clean_data)
-            if user:
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+            user = serializer.save()
+            # Include 'id' in the response data
+            response_data = serializer.data
+            response_data['id'] = user.user_id
+            return Response(response_data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserLogin(APIView):
@@ -33,21 +31,12 @@ class UserLogin(APIView):
 
     ##
     def post(self, request):
-        data = request.data
-        try:
-            assert validate_email(data)
-            assert validate_password(data)
-        except:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
-        serializer = UserLoginSerializer(data=data)
+        serializer = UserLoginSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            try:
-                user = serializer.check_user(data)
-                login(request, user)
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            except ValidationError:
-                return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+            user = serializer.validated_data
+            login(request, user)
+            # Include 'id' in the response data
+            return Response({'id': user.user_id, 'email': user.email, 'username': user.username}, status=status.HTTP_200_OK)
 
 
 class UserLogout(APIView):
