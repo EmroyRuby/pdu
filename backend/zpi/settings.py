@@ -75,10 +75,12 @@ TEMPLATES = [
 WSGI_APPLICATION = 'zpi.wsgi.application'
 
 # CORS
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:4200",
-    "http://127.0.0.1:8000",  # If you want to allow local development
+    "http://127.0.0.1:8000",
+    "http://localhost:4200",
+    "http://localhost:8000", # If you want to allow local development
 ]
 
 # Database
