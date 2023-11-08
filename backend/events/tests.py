@@ -1,8 +1,3 @@
-# Create your tests here.
-from django.test import TestCase
-from django.contrib.auth import get_user_model
-from .models import Category, Event, EventNotification, EventRegistration, Comment
-
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from rest_framework.test import APIClient
@@ -171,7 +166,6 @@ class CategoryViewSetTests(TestCase):
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    # Add more test cases for other view functions in CategoryViewSet
 
 
 

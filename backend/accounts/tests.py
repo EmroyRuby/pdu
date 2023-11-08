@@ -1,10 +1,5 @@
-# Create your tests here.
-# Create your tests here.
-from django.test import TestCase
 from .models import AppUser
 
-
-from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from rest_framework import status
@@ -169,7 +164,5 @@ class ValidationTests(TestCase):
             data = {'password': ''}
             validate_password(data)
 
-
-# serializers tests
 
 
