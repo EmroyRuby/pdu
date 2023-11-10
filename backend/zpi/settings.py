@@ -76,22 +76,25 @@ WSGI_APPLICATION = 'zpi.wsgi.application'
 
 # CORS
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOWED_ORIGINS = [
-    "http://127.0.0.1:4200",
-    "http://127.0.0.1:8000",
-    "http://localhost:4200",
-    "http://localhost:8000" # If you want to allow local development
-]
+CORS_ALLOW_ALL_ORIGINS = True
 
+# CORS_ALLOWED_ORIGINS = [
+#     "http://127.0.0.1:4200",
+#     "http://127.0.0.1:8000",
+#     "http://localhost:4200",
+#     "http://localhost:8000" # If you want to allow local development
+# ]
+#
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8000",
-    "http://localhost:4200"
+    "http://localhost:4200",
+    "http://127.0.0.1:4200"
 ]
-
-CORS_ORIGIN_WHITELIST = [
-    "http://localhost:8000",
-    "http://localhost:4200"
-]
+#
+# CORS_ORIGIN_WHITELIST = [
+#     "http://localhost:8000",
+#     "http://localhost:4200"
+# ]
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -158,9 +161,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-CSRF_COOKIE_SECURE = False
-SESSION_COOKIE_SECURE = False
-CSRF_COOKIE_SAMESITE = 'None'
 
 AUTH_USER_MODEL = 'accounts.AppUser'
 LOGIN_URL = "http://localhost:8000/api/accounts/login"
