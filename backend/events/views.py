@@ -1,16 +1,18 @@
 from datetime import date
-
-from django.shortcuts import get_object_or_404
 from rest_framework import permissions, viewsets, status
 from rest_framework.authentication import SessionAuthentication
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
-
+from .mailing_system import send_notification, DELETE_CONTENT, DELETE_SUBJECT
 from .models import (Event, EventNotification,
                      EventRegistration, Category, Comment)
 from .my_permissions import IsOwnerOrReadOnlyOrSuperuser, CanViewAndPostOnly
 from .serializers import (EventSerializer, EventNotificationSerializer,
                           EventRegistrationSerializer,
                           CategorySerializer, CommentSerializer)
+import logging
+
+logger = logging.getLogger('events')
 
 
 class BaseViewSet(viewsets.ModelViewSet):
@@ -64,18 +66,87 @@ class EventViewSet(BaseViewSet):
     def perform_create(self, serializer):
         # Set the user to the current user
         serializer.save(user=self.request.user)
+        logger.info(f"Event created with title '{serializer.instance.title}' by user {self.request.user.user_id}")
+
+    def destroy(self, request, *args, **kwargs):
+        event = self.get_object()  # This will use the queryset to get the object, which already accounts for permissions.
+
+        # Check if the user is allowed to delete this event
+        if not (event.user == request.user or request.user.is_superuser):
+            raise PermissionDenied("You do not have permission to delete this event.")
+
+        # Send notification before deleting
+        registered_emails = list(EventRegistration.objects.filter(event=event.id)
+                                 .values_list('user__email', flat=True))
+        logger.info(f"Registered emails for event {event.id}: {registered_emails}")
+        send_notification(emails=registered_emails, subject=DELETE_SUBJECT, content=DELETE_CONTENT)
+        logger.info(f"Notification sent for event {event.id} with subject '{DELETE_SUBJECT}'.")
+
+        # Perform the deletion
+        # event.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def update(self, request, *args, **kwargs):
+        event = self.get_object()
+        # Store original values before they are updated
+        original_start_date = event.start_date
+        original_end_date = event.end_date
+        original_location = event.location
+
+        serializer = self.get_serializer(event, data=request.data, partial=kwargs.pop('partial', False))
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        # After updating, check if the specific fields have changed
+        if (event.start_date != original_start_date or
+                event.end_date != original_end_date or
+                event.location != original_location):
+
+            # Prepare a message to notify users of the change
+            message = "The details of event '{}' have changed.".format(event.title)
+            if event.start_date != original_start_date:
+                message += "\nNew start date: {}".format(event.start_date)
+            if event.end_date != original_end_date:
+                message += "\nNew end date: {}".format(event.end_date)
+            if event.location != original_location:
+                message += "\nNew location: {}".format(event.location)
+
+            # Send notification to all registered users
+            registered_emails = list(event.eventregistration_set.filter(is_registered=True)
+                                     .values_list('user__email', flat=True))
+            logger.info(f"Sending update notification for event {event.id} to emails: {registered_emails}")
+            send_notification(emails=registered_emails, subject="Event Update Notification", content=message)
+
+        return Response(serializer.data)
 
 
 class EventNotificationViewSet(BaseViewSet):
+    permission_classes = [CanViewAndPostOnly]
     queryset = EventNotification.objects.all()
     serializer_class = EventNotificationSerializer
     filter_params = {
         'id': 'id',
-        'event': 'event',
         'title': 'title__iexact',
         'sent_date_start': 'sent_date__gte',
         'sent_date_end': 'sent_date__lte'
     }
+
+    def create(self, request, *args, **kwargs):
+        event_id = request.data.get('event')
+        event = Event.objects.filter(pk=event_id, user=request.user).first()
+        if not event:
+            return Response(
+                {"detail": "You do not have permission to add notifications for this event."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        registered_emails = list(EventRegistration.objects.filter(event=event_id)
+                                 .values_list('user__email', flat=True))
+        logger.info(f"Registered emails for event {event_id}: {registered_emails}")
+        send_notification(emails=registered_emails, subject=request.data['title'], content=request.data['content'])
+        logger.info(f"Notification sent for event {event_id} with subject '{request.data['title']}'.")
+
+        return super().create(request, *args, **kwargs)
 
     def get_queryset(self):
         # First, filter based on the logged-in user
@@ -89,6 +160,19 @@ class EventNotificationViewSet(BaseViewSet):
         # Now apply other filters if any
         query_params = self.request.query_params
 
+        # at /api/event-notifications user will see all his notifications
+        # at /api/event-notifications?event user will see all notifications for an event, if he's owner of it
+        event = query_params.get('event')
+        if event:
+            try:
+                event = Event.objects.get(id=event)
+                if event.user == self.request.user:
+                    user_notifications = EventNotification.objects.filter(event=event)
+                else:
+                    # If the user is neither the owner nor a superuser, return an empty queryset
+                    return EventNotification.objects.none()
+            except Event.DoesNotExist:
+                return EventRegistration.objects.none()
         for param, lookup in self.filter_params.items():
             value = query_params.get(param)
             if value:
@@ -113,11 +197,14 @@ class EventRegistrationViewSet(BaseViewSet):
     }
 
     def create(self, request, *args, **kwargs):
-        # Instead of taking the user from the request data, set it to the current user
+        # Overriding create method to set the user and handle registrations
         user = self.request.user
         event_id = request.data.get('event')
-
-        event_obj = get_object_or_404(Event, id=event_id)
+        # Handling the error when the event does not exist
+        try:
+            event_obj = Event.objects.get(id=event_id)
+        except Event.DoesNotExist:
+            return Response({"detail": "Event does not exist."}, status=status.HTTP_404_NOT_FOUND)
 
         # Check if the user is already registered for this event
         if EventRegistration.objects.filter(user=user, event=event_id).exists():
