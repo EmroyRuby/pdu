@@ -28,7 +28,14 @@ docker-compose exec django-app python manage.py  migrate
 docker-compose exec django-app python populate_db.py <br>
 </p>
 
-<h3>4. Create mailing system task to send notifications 24 hours 
+<h4>4. Unit testing - backend</h4>
+<p> 
+For backend testing there is django-test image generated for unit tests <br>
+To launch them u have to write in console: docker-compose exec django-app python3 manage.py test
+Or in docker-desktop just launch the test-docker-image with "Run" button  
+</p>
+
+<h3>5. Create mailing system task to send notifications 24 hours 
 before event start date</h3>
 <p> 
 docker-compose exec django-app python manage.py create_schedule <br>
