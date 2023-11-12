@@ -27,3 +27,9 @@ docker-compose exec django-app python manage.py  migrate
 <p> 
 docker-compose exec django-app python populate_db.py <br>
 </p>
+
+<h3>4. Create mailing system task to send notifications 24 hours 
+before event start date</h3>
+<p> 
+docker-compose exec django-app python manage.py create_schedule <br>
+</p>

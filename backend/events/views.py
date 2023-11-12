@@ -3,7 +3,7 @@ from rest_framework import permissions, viewsets, status
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
-from .mailing_system import send_notification, DELETE_CONTENT, DELETE_SUBJECT
+from events.mailing_system import send_notification, DELETE_CONTENT, DELETE_SUBJECT
 from .models import (Event, EventNotification,
                      EventRegistration, Category, Comment)
 from .my_permissions import IsOwnerOrReadOnlyOrSuperuser, CanViewAndPostOnly
