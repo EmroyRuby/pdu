@@ -83,4 +83,17 @@ services:
     depends_on:
       - django-app
 
+  django-test:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: python3 manage.py test
+    volumes:
+      - ./backend:/code
+    environment:
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    depends_on:
+      - db
 
