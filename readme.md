@@ -27,3 +27,10 @@ docker-compose exec django-app python manage.py  migrate
 <p> 
 docker-compose exec django-app python populate_db.py <br>
 </p>
+
+<h4>4. Unit testing - backend</h4>
+<p> 
+For backend testing there is django-test image generated for unit tests <br>
+To launch them u have to write in console: docker-compose exec django-app python3 manage.py test
+Or in docker-desktop just launch the test-docker-image with "Run" button  
+</p>
