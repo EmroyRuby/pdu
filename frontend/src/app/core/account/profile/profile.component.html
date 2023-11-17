@@ -1,0 +1,38 @@
+<div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header fs-4">User Profile</div>
+          <div class="card-body">
+            <div class="form-group">
+              <label for="email">Email:</label>
+              <input type="text" id="email" class="form-control" [value]="user.email" readonly disabled>
+            </div>
+            <div class="mt-4">
+              <button class="btn btn-primary mb-3 me-md-2" (click)="editProfile()">Edit Data</button>
+              <button class="btn btn-danger mb-3 me-md-2" data-bs-toggle="modal" data-bs-target="#deleteModal">Delete Account</button>
+              <div class="modal fade" id="deleteModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h1 class="modal-title fs-5" id="staticBackdropLabel">Confirm</h1>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to delete your account?
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                      <button type="button" class="btn btn-primary" data-bs-dismiss="modal" (click)="deleteAccount()">Yes</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <button class="btn btn-secondary mb-3 me-md-2" (click)="logout()">Log Out</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  

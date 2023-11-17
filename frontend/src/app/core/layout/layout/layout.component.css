@@ -1,0 +1,4 @@
+.striped-background {
+    background: repeating-linear-gradient(90deg, #635078, #635078 2%, #6C5A80 2%, #6C5A80 7%);
+    min-height: 100vh;
+}

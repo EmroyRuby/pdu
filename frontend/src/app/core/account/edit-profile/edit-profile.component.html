@@ -1,0 +1,41 @@
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header fs-4">User Profile</div>
+        <div class="card-body">
+          <form [formGroup]="editEmailForm" (ngSubmit)="editEmail()">
+            <div class="form-group">
+              <label for="newEmail">New email:</label>
+              <input type="text" id="newEmail" class="form-control">
+              <div *ngIf="editEmailForm.get('newEmail')?.hasError('required') && editEmailForm.get('newEmail')?.touched" class="text-danger">
+                Email is required
+              </div>
+            </div>
+            <div class="mt-4">
+              <button type="submit" class="btn btn-primary mb-3 me-md-2" [disabled]="editEmailForm.invalid">Edit Data</button>
+            </div>
+          </form>
+          <form [formGroup]="changePasswordForm" (ngSubmit)="changePassword()">
+            <div class="form-group mt-2">
+              <label for="oldPassword">Current password:</label>
+              <input type="password" id="oldPassword" class="form-control">
+              <div *ngIf="changePasswordForm.get('oldPassword')?.hasError('required') && changePasswordForm.get('oldPassword')?.touched" class="text-danger">
+                Password is required
+              </div>
+              <label for="newPassword">New password:</label>
+              <input type="password" id="newPassword" class="form-control">
+              <div *ngIf="changePasswordForm.get('newPassword')?.hasError('required') && changePasswordForm.get('newPassword')?.touched" class="text-danger">
+                Password is required
+              </div>
+            </div>
+            <div class="mt-4">
+              <button type="submit" class="btn btn-primary mb-3 me-md-2" [disabled]="changePasswordForm.invalid">Edit Data</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  
