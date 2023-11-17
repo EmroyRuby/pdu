@@ -55,3 +55,12 @@ class Comment(models.Model):
     objects = models.Manager()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+
+class GuestRegistration(models.Model):
+    email = models.EmailField()
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    verified = models.BooleanField(default=False)
+    verification_code = models.CharField(max_length=100, blank=True, null=True)
+    registration_date = models.DateTimeField(auto_now_add=True)
+

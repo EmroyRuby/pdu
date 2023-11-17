@@ -1,7 +1,10 @@
+import uuid
+
 from rest_framework import serializers
 
 from accounts.models import AppUser
-from .models import Event, EventNotification, EventRegistration, Category, Comment
+from .models import Event, EventNotification, EventRegistration, Category, Comment, GuestRegistration
+from .tasks import send_verification_email
 
 
 class EventSerializer(serializers.ModelSerializer):
@@ -64,3 +67,26 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class CategoryNameListSerializer(serializers.Serializer):
     name = serializers.CharField()
+
+
+class GuestRegistrationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GuestRegistration
+        fields = ['email', 'event']
+
+    def create(self, validated_data):
+        # Create a verification code
+        verification_code = uuid.uuid4().hex
+        # Create GuestRegistration object with verification_code
+        guest_registration = GuestRegistration.objects.create(
+            verification_code=verification_code,
+            **validated_data
+        )
+        # Send a verification email (implemented in tasks.py)
+        send_verification_email.delay(
+            guest_registration.email,
+            guest_registration.verification_code,
+            guest_registration.event_id
+        )
+        return guest_registration
+

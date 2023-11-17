@@ -1,15 +1,19 @@
 from datetime import date
+
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import permissions, viewsets, status
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
+from rest_framework.views import APIView
+
 from events.mailing_system import send_notification, DELETE_CONTENT, DELETE_SUBJECT
 from .models import (Event, EventNotification,
-                     EventRegistration, Category, Comment)
+                     EventRegistration, Category, Comment, GuestRegistration)
 from .my_permissions import IsOwnerOrReadOnlyOrSuperuser, CanViewAndPostOnly
 from .serializers import (EventSerializer, EventNotificationSerializer,
                           EventRegistrationSerializer,
-                          CategorySerializer, CommentSerializer)
+                          CategorySerializer, CommentSerializer, GuestRegistrationSerializer)
 import logging
 
 logger = logging.getLogger('events')
@@ -290,3 +294,60 @@ class CommentViewSet(BaseViewSet):
         'event': 'event',
         'content': 'content__iexact'
     }
+
+
+class GuestRegistrationAPIView(APIView):
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = [SessionAuthentication]
+
+    @swagger_auto_schema(
+        operation_description="Register a guest user by email.",
+        request_body=GuestRegistrationSerializer,
+        responses={
+            status.HTTP_201_CREATED: '{"message": "Please check your email to confirm registration."}',
+            status.HTTP_400_BAD_REQUEST: 'Bad Request',
+        },
+        tags=['Guest Registration'],
+    )
+    def post(self, request, *args, **kwargs):
+        serializer = GuestRegistrationSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            # You might want to send a response with further instructions
+            return Response(
+                {"message": "Please check your email to confirm registration."},
+                status=status.HTTP_201_CREATED
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class VerifyGuestRegistration(APIView):
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = [SessionAuthentication]
+
+    def get(self, request, *args, **kwargs):
+        # Retrieve verification code and event_id from the request's query parameters
+        verification_code = request.query_params.get('code')
+        event_id = request.query_params.get('event_id')
+
+        if not verification_code or not event_id:
+            return Response({"detail": "Missing verification code or event ID."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Retrieve the guest registration using the verification code and event_id
+            guest_registration = GuestRegistration.objects.get(
+                verification_code=verification_code,
+                event_id=event_id,
+                verified=False  # Assuming you have an 'verified' field to check if it's already verified
+            )
+        except GuestRegistration.DoesNotExist:
+            return Response({"detail": "Invalid verification code or event ID, or already verified."},
+                            status=status.HTTP_404_NOT_FOUND)
+
+        # If the registration exists and is not verified, verify it
+        guest_registration.verified = True
+        guest_registration.save()
+
+        # After verification, you might want to redirect the user or send a success response
+        return Response({"message": "Email verified successfully. You are now registered for the event."},
+                        status=status.HTTP_200_OK)
