@@ -1,13 +1,11 @@
 from django.contrib.auth import login, logout, update_session_auth_hash
 from rest_framework import permissions, status
 from rest_framework.authentication import SessionAuthentication
-from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from events import my_permissions
 from .serializers import UserRegisterSerializer, UserLoginSerializer, UserSerializer, PasswordChangeSerializer
-from .validations import custom_validation, validate_email, validate_password
 
 
 class UserRegister(APIView):
@@ -55,7 +53,7 @@ class UserView(APIView):
     ##
     def get(self, request):
         serializer = UserSerializer(request.user)
-        return Response({'user': serializer.data}, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class UserEdit(APIView):

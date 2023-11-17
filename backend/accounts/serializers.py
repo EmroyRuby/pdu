@@ -1,7 +1,6 @@
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
 
 from accounts.models import AppUser
 
@@ -32,9 +31,14 @@ class UserLoginSerializer(serializers.Serializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    id = serializers.SerializerMethodField()
+
     class Meta:
-        model = UserModel
-        fields = ('email', 'username', 'user_id')
+        model = AppUser
+        fields = ('id', 'email', 'username')
+
+    def get_id(self, obj):
+        return obj.pk  # Return the primary key of the object
 
     def is_valid(self, raise_exception=False):
         # Call the parent class's is_valid method
@@ -51,6 +55,8 @@ class UserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(self.errors)
 
         return super_valid and not bool(self._errors)
+
+
 
 
 class PasswordChangeSerializer(serializers.Serializer):
