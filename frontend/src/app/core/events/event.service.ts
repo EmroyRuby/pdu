@@ -1,134 +1,297 @@
 import { Injectable } from '@angular/core';
-import { EventsFilter } from '../models';
-import { Event} from '../models';
+import { Event, Category, EventRegistration, EventsFilter } from '../models';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { BehaviorSubject, Observable, firstValueFrom, map } from 'rxjs';
+import { AccountService } from '../account/account.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EventService {
-  private tags: string[] = ['Sports', 'Competition', 'Volleyball', 'Dance', 'Performance', 'Education', 'Tutoring', 'Art', 'Crafts'];
-  private events: Event[] = [
-    {
-      id: 1,
-      title: 'Volleyball group',
-      organiser: 'Volleyball Club A',
-      description: 'Join our exciting volleyball group.',
-      location: 'Sports Arena 1',
-      isPublic: true,
-      price: 10,
-      capacity: 100,
-      registrationEndDate: new Date('2023-12-15T12:00:00'),
-      startDate: new Date('2024-01-20T09:00:00'),
-      endDate: new Date('2024-01-22T18:00:00'),
-      image: '/assets/volleyball.jpg',
-      tags: ['Sports', 'Competition', 'Volleyball'],
-    },
-    {
-      id: 2,
-      title: 'Ballet class',
-      organiser: 'Ballet School B',
-      description: 'Learn the art of ballet and prepare for an enchanting ballet performance.',
-      location: 'Dance Studio 2',
-      isPublic: true,
-      price: 20,
-      capacity: 50,
-      registrationEndDate: new Date('2023-11-30T12:00:00'),
-      startDate: new Date('2024-02-15T10:30:00'),
-      endDate: new Date('2024-02-17T16:00:00'),
-      image: '/assets/ballet.jpg',
-      tags: ['Dance', 'Performance'],
-    },
-    {
-      id: 3,
-      title: 'Math Tutoring Session',
-      organiser: 'Math Tutors C',
-      description: 'Improve your math skills with our expert math tutoring sessions. All levels welcome!',
-      location: 'Library 3',
-      isPublic: false,
-      capacity: 20,
-      registrationEndDate: new Date('2024-01-25T14:00:00'),
-      startDate: new Date('2024-03-10T17:30:00'),
-      endDate: new Date('2024-03-12T19:30:00'),
-      image: 'math.jpg',
-      tags: ['Education', 'Tutoring'],
-    },
-    {
-      id: 4,
-      title: 'Pottery Workshop',
-      organiser: 'Pottery Studio D',
-      description: 'Unleash your creativity with our hands-on pottery workshop. Create unique clay art!',
-      location: 'Art Studio 4',
-      isPublic: true,
-      price: 15,
-      capacity: 40,
-      registrationEndDate: new Date('2024-02-28T12:00:00'),
-      startDate: new Date('2024-04-15T10:00:00'),
-      endDate: new Date('2024-04-17T16:30:00'),
-      image: 'pottery.jpg',
-      tags: ['Art', 'Crafts'],
-    },
-  ];
+  // Array to store categories
+  private categories: string[] = [];
+  // Array to store events
+  private events: Event[] = [];
+  // Filters for events
   filters: EventsFilter = {
-    titlePattern: null,
-    tags: null,
-    accessibility: null,
-    startDate: new Date,
-    endDate: null
+    title_pattern: null,
+    categories: null,
+    accessibility: "All",
+    start_date: new Date,
+    end_date: null
   };
 
-  listEvents(): Event[] {
-    return this.events;
+  constructor(private http: HttpClient, private accountService: AccountService) {
   }
 
-  listMyEvents(role: number): Event[] {
-    if (role === 1) {
-      return this.events.filter(event => event.organiser === 'Volleyball Club A');
-    } else if (role === 2) {
+  // Retrieve a list of events based on applied filters
+  async listEvents(): Promise<Event[]> {
+    try {
+      console.log(this.filters);
+      // Build HTTP params based on applied filters
+      let params = new HttpParams();
+      if (this.filters.title_pattern) {
+        params = params.set('title', this.filters.title_pattern);
+      }
+      if (this.filters.categories) {
+        const categoriesString = this.filters.categories.join(',');
+        params = params.set('category', categoriesString);
+      }
+      if (this.filters.accessibility) {
+        if(this.filters.accessibility === 'Public') {
+          params = params.set('is_public', "True");
+        }
+        else if(this.filters.accessibility === 'Private') {
+          params = params.set('is_public', "False");
+        }
+      }
+      if (this.filters.start_date) {
+        params = params.set('start_date', (this.filters.start_date).toISOString().slice(0,10));
+      }
+      if (this.filters.end_date) {
+        params = params.set('end_date', (this.filters.end_date).toISOString().slice(0,10));
+      }
+      // Make a GET request to retrieve events
+      const events = await firstValueFrom(
+        this.http.get<Event[]>(`http://127.0.0.1:8000/api/events/`, { params }).pipe()
+      );
+      this.events = events;
+      console.log('Events retrived successfully');
       return this.events;
+    } catch (error) {
+      console.error('Error during GET events HTTP request:', error);
+      throw error;
+    }
+  }
+
+  // List events for the authenticated user based on their role
+  async listMyEvents(role: number): Promise<Event[]> {
+    if (role === 1) {
+      // as participant
+      try {
+        const options = {
+          withCredentials: true,
+        };
+        const events = await firstValueFrom(
+          this.http.get<EventRegistration[]>(`http://127.0.0.1:8000/api/event-registrations/`, options).pipe(
+            map((data) => data.filter((item) => item.is_registered)),
+            map((registrations) => registrations.map((registration) => registration.event_detail)),
+            map((events) => events.filter((event) => event !== undefined) as Event[])
+          )
+        );
+        console.log("Participant's events retrived successfully");
+        return events;
+      } catch (error) {
+        console.error('Error during GET participant events HTTP request:', error);
+        throw error;
+      }
+    } else if (role === 2) {
+      // as organiser
+      try {
+        const userId = (await this.accountService.getUserData()).id;
+        let params = new HttpParams();
+        if (userId) {
+          params = params.set('user', userId);
+        }
+        const events = await firstValueFrom(
+          this.http.get<Event[]>(`http://127.0.0.1:8000/api/events/`, { params }).pipe()
+        );
+        console.log("Organiser's events retrived successfully");
+        return events;
+      } catch (error) {
+        console.error('Error during GET organizer events HTTP request:', error);
+        throw error;
+      }
     }
     return this.events;
   }
-
-  getTags(): string[] {
-    console.log("All the tags: " + this.tags);
-    return this.tags;
-  }
-
-  getEventById(eventId: number): any {
-    const event = this.events.find(event => event.id === eventId);
-    console.log("Getting event of id=" + eventId + ". Event: ", event);
-    return event;
-  }
-
-  addEvent(event: any): number {
-    console.log("Adding event: " + event);
-    event.id = 5;
-    this.events.push(event);
-    return 5;
-  }
-
-  editEvent(eventId: number, updatedEvent: any): void {
-    console.log("Editing event of id=" + eventId + ". New value: ", updatedEvent);
-  }
-
-  deleteEvent(eventId: number): void {
-    console.log("Deleting event of id=" + eventId);
   
+
+  // Retrieve a list of categories
+  async getCategories(): Promise<string[]> {
+    try {
+      const categories = await firstValueFrom(
+        this.http.get<Category[]>(`http://127.0.0.1:8000/api/categories/`).pipe(
+          map(data => data.map(item => item.name))
+        )
+      );
+      this.categories = categories;
+      console.log("Categories retrived successfully");
+      return this.categories;
+    }catch (error) {
+      console.error('Error during GET categories HTTP request:', error);
+      throw error;
+    }
   }
 
-  isSignedUp(eventId: number): boolean {
-    return true;
+  // Retrieve event details by ID
+  async getEventById(eventId: number): Promise<Event> {
+    try {
+      console.log("Getting event of id=" + eventId);
+      let params = new HttpParams();
+      params = params.set('id', eventId);
+      const event = await firstValueFrom(
+        this.http.get<Event[]>(`http://127.0.0.1:8000/api/events/`, { params }).pipe()
+      );
+      console.log("Event ", eventId, " data: ", event);
+      return event[0];
+    } catch (error) {
+      console.error('Error during GET event by ID HTTP request:', error);
+      throw error;
+    }
   }
 
-  isOrganiser(eventId: number): boolean {
-    return true;
+  // Add a new event
+  async addEvent(event: Event): Promise<number> {
+    try {
+      const newCategories = event.categories?.filter(category => !this.categories.includes(category));
+      if (newCategories) {
+        for (const category of newCategories) {
+          await this.addCategory(category);
+        }
+      }
+      const options = {
+        withCredentials: true,
+        headers: {
+          'X-CSRFToken': this.accountService.getCsrfToken(),
+        },
+      };
+      const eventResp = await firstValueFrom(
+        this.http.post<Event>(`http://127.0.0.1:8000/api/events/`, event, options).pipe()
+      );
+      console.log("Added event: " + eventResp);
+      const eventId = eventResp.id;
+      return eventId;
+    } catch (error) {
+      console.error('Error during POST addEvent HTTP request:', error);
+      throw error;
+    }
   }
 
-  signUp(eventId: number): void {
-    
+  async addCategory(category: string) {
+    try {
+      const options = {
+        withCredentials: true,
+        headers: {
+          'X-CSRFToken': this.accountService.getCsrfToken(),
+        },
+      };
+      const eventResp = await firstValueFrom(
+        this.http.post(`http://127.0.0.1:8000/api/categories/`, { name: category }, options).pipe()
+      );
+      console.log("Added category: " + eventResp);
+    } catch (error) {
+      console.error('Error during POST addCategory HTTP request:', error);
+      throw error;
+    }
+  }
+
+  // Edit an existing event
+  async editEvent(eventId: number, updatedEvent: Event) {
+    try {
+      const newCategories = updatedEvent.categories?.filter(category => !this.categories.includes(category));
+      if (newCategories) {
+        for (const category of newCategories) {
+          await this.addCategory(category);
+        }
+      }
+      const options = {
+        withCredentials: true,
+        headers: {
+          'X-CSRFToken': this.accountService.getCsrfToken(),
+        },
+      };
+      const eventResp = await firstValueFrom(
+        this.http.put<Event>(`http://127.0.0.1:8000/api/events/${eventId}/`, updatedEvent, options).pipe()
+      );
+      console.log("Updated event " + eventId + ". New value: ", eventResp);
+    } catch (error) {
+      console.error('Error during PUT editEvent HTTP request:', error);
+      throw error;
+    }
+  }
+
+  // Delete an existing event
+  async deleteEvent(eventId: number) {
+    try {
+      const options = {
+        withCredentials: true,
+        headers: {
+          'X-CSRFToken': this.accountService.getCsrfToken(),
+        },
+      };
+      await firstValueFrom(
+        this.http.delete(`http://127.0.0.1:8000/api/events/${eventId}/`, options).pipe()
+      );
+      console.log("Deleted event " + eventId);
+    } catch (error) {
+      console.error('Error during DELETE deleteEvent HTTP request:', error);
+      throw error;
+    }
+  }
+
+  // Check if the user is signed up for an event
+  async isSignedUp(eventId: number): Promise<boolean> {
+    const events = await this.listMyEvents(1);
+    const isSignedUp = events.some(event => event.id === eventId);
+    console.log("isSignedUp: ", isSignedUp);
+    return isSignedUp;
+  }
+
+  // Check if the user is the organiser of an event
+  async isOrganiser(eventId: number): Promise<boolean> {
+    const event = await this.getEventById(eventId);
+    const userId = (await this.accountService.getUserData()).id;
+    const isOrganiser = event.user === userId;
+    console.log("isOrganiser: ", isOrganiser);
+    return isOrganiser;
+  }
+
+  // Sign up for an event
+  async signUp(eventId: number): Promise<boolean> {
+    try {
+      const options = {
+        withCredentials: true,
+        headers: {
+          'X-CSRFToken': this.accountService.getCsrfToken(),
+        },
+      };
+      const eventReg: EventRegistration = {
+        event: eventId,
+        is_registered: true
+      };
+      const resp = await firstValueFrom(
+        this.http.post<EventRegistration>(`http://127.0.0.1:8000/api/event-registrations/`, eventReg, options).pipe()
+      );
+      return resp.is_registered === true;
+    } catch (error) {
+      console.error('Error during POST signUp HTTP request:', error);
+      throw error;
+    }
   }
   
-  signOut(eventId: number): void {
-    
+  // Sign out from an event
+  async signOut(eventId: number) {
+    try {
+      const options = {
+        withCredentials: true,
+        headers: {
+          'X-CSRFToken': this.accountService.getCsrfToken(),
+        },
+      };
+      const eventReg = await firstValueFrom(
+        this.http.get<EventRegistration[]>(`http://127.0.0.1:8000/api/event-registrations/`, options).pipe(
+          map((data) => data.filter((registration) => registration.event === eventId))
+        )
+      );
+      const regId = eventReg[0].id;
+      console.log(regId);
+      await firstValueFrom(
+        this.http.delete(`http://127.0.0.1:8000/api/event-registrations/${regId}`, options).pipe()
+      );
+    } catch (error) {
+      console.error('Error during signOut method:', error);
+      throw error;
+    }
   }
 }

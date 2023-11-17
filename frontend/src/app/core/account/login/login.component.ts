@@ -9,12 +9,10 @@ import { Router } from '@angular/router';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent implements OnInit {
-  user: any;
   loginForm: FormGroup;
   loginFailed: boolean = false;
 
   constructor(private fb: FormBuilder, private accountService: AccountService, private router: Router) {
-    this.user = this.accountService.getUserData();
     this.loginForm = this.fb.group({
       email: ['', Validators.required],
       password: ['', Validators.required]
@@ -23,9 +21,8 @@ export class LoginComponent implements OnInit {
 
   ngOnInit() {}
 
-  login() {
-    if (this.accountService.login(this.loginForm.value.email, this.loginForm.value.password)) {
-      this.user = this.accountService.getUserData();
+  async login() {
+    if (await this.accountService.login(this.loginForm.value.email, this.loginForm.value.password)) {
       this.loginFailed = false;
       this.router.navigate(['/profile']);
     } else {

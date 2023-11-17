@@ -15,6 +15,7 @@ export class SignUpComponent {
   eventId!: number;
   event!: Event;
   signUpForm: FormGroup;
+  isLoggedIn: boolean = false;
 
   constructor(private fb: FormBuilder, private route: ActivatedRoute, private router: Router, private eventService: EventService, private authService: AccountService) {
     this.signUpForm = this.fb.group({
@@ -22,16 +23,17 @@ export class SignUpComponent {
     });
    }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.route.queryParamMap.subscribe(params => {
       const eventId = params.get('id');
       if (eventId) {
         this.eventId = parseInt(eventId, 10)
       }
     });
-    this.event = this.eventService.getEventById(this.eventId);
+    this.event = await this.eventService.getEventById(this.eventId);
+    this.isLoggedIn = this.authService.isLoggedIn();
 
-    if (!this.event || (!this.event.isPublic && !this.authService.isLoggedIn())) {
+    if (!this.event || (!this.event.is_public && !this.isLoggedIn)) {
       this.router.navigate(['/login']);
     }
   }

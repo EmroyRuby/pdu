@@ -10,26 +10,24 @@ import { Event, EventsFilter } from '../../models';
 })
 export class EventsCatalogComponent implements OnInit {
   events: Event[] = [];
-  filteredEvents: Event[] = [];
-  tags: string[] = [];
-  accessibility: any[] = ['Public', 'Private']
+  categories: string[] = [];
+  accessibility: any[] = ['All', 'Public', 'Private']
   filters: EventsFilter = {
-    titlePattern: null,
-    tags: null,
+    title_pattern: null,
+    categories: null,
     accessibility: null,
-    startDate: null,
-    endDate: null
+    start_date: null,
+    end_date: null
   };
   isDropdownOpen = false;
 
   constructor(private router: Router, private route: ActivatedRoute, private eventService: EventService) { 
   }
 
-  ngOnInit() {
+  async ngOnInit() {
+    this.categories = await this.eventService.getCategories();
     this.filters = this.eventService.filters;
-    this.events = this.eventService.listEvents();
-    this.filteredEvents = this.events;
-    this.tags = this.eventService.getTags();
+    this.events = await this.eventService.listEvents();
   }  
 
   onCardClick(event: any) {
@@ -40,88 +38,76 @@ export class EventsCatalogComponent implements OnInit {
     });
   }
 
+  async applyFilter() {
+    this.eventService.filters = this.filters;
+    this.events = await this.eventService.listEvents();
+    console.log(this.events);
+  }
+
   filterbyTitle(searchTitle: string) {
-    this.filters.titlePattern = searchTitle;
+    this.filters.title_pattern = searchTitle;
     this.applyFilter();
   }
 
-  filterByTag(tag: string) {
+  filterByCategory(category: string) {
     if (this.filters) {
-      if (this.isTagSelected(tag)) {
-        this.filters.tags = this.filters.tags?.filter(selectedTag => selectedTag !== tag) ?? [];
+      if (this.isCategorySelected(category)) {
+        this.filters.categories = this.filters.categories?.filter(selectedCategory => selectedCategory !== category) ?? [];
       } else {
-        this.filters.tags = this.filters.tags ?? [];
-        this.filters.tags.push(tag);
+        this.filters.categories = this.filters.categories ?? [];
+        this.filters.categories.push(category);
       }
       this.applyFilter();
     }
   }
 
-  filterByDates(startDate: string, endDate: string) {
-      if (startDate) {
-        this.filters.startDate = new Date(startDate);
+  filterByDates(start_date: string, end_date: string) {
+      if (start_date) {
+        this.filters.start_date = new Date(start_date);
       }
-      if (endDate) {
-        this.filters.endDate = new Date(endDate);
+      if (end_date) {
+        this.filters.end_date = new Date(end_date);
     }
     this.applyFilter();
   }
 
   filterByAccessibility(acc: string) {
     if (this.filters) {
-      if (this.isAccSelected(acc)) {
-        this.filters.accessibility = this.filters.accessibility?.filter(selectedAcc => selectedAcc !== acc) ?? [];
-      } else {
-        this.filters.accessibility = this.filters.accessibility ?? [];
-        this.filters.accessibility.push(acc);
-      }
+        this.filters.accessibility = acc;
       this.applyFilter();
     }
   }
 
-
-  applyFilter() {
-    this.eventService.filters = this.filters;
-    this.events = this.eventService.listEvents();
-  }
-
-  removeSelectedTag(tagToRemove: string) {
-    if (this.filters.tags !== null) {
-      const index = this.filters.tags.indexOf(tagToRemove);
+  removeSelectedCategory(categoryToRemove: string) {
+    if (this.filters.categories !== null) {
+      const index = this.filters.categories.indexOf(categoryToRemove);
       if (index !== -1) {
-        this.filters.tags.splice(index, 1);
+        this.filters.categories.splice(index, 1);
       }
       this.applyFilter();
     }
   }
 
-  removeSelectedAcc(accToRemove: string) {
+  removeSelectedAcc() {
     if (this.filters.accessibility !== null) {
-      const index = this.filters.accessibility.indexOf(accToRemove);
-      if (index !== -1) {
-        this.filters.accessibility.splice(index, 1);
+        this.filters.accessibility = "All";
       }
       this.applyFilter();
-    }
   }
 
-  clearStartDateFilter() {
-    this.filters.startDate = null;
+  clearstart_dateFilter() {
+    this.filters.start_date = null;
     this.applyFilter();
   }
 
-  clearEndDateFilter() {
-    this.filters.endDate = null;
+  clearend_dateFilter() {
+    this.filters.end_date = null;
     this.applyFilter();
   }
 
-  isTagSelected(tag: string): boolean {
-    return this.filters.tags !== null && this.filters.tags.includes(tag);
+  isCategorySelected(category: string): boolean {
+    return this.filters.categories !== null && this.filters.categories.includes(category);
   }
-
-  isAccSelected(acc: string): boolean {
-    return this.filters.accessibility !== null && this.filters.accessibility.includes(acc);
-  }  
 
   toggleDropdown() {
     this.isDropdownOpen = !this.isDropdownOpen;

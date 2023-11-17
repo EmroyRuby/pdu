@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { EventService } from '../event.service';
+import { Event } from '../../models';
 
 @Component({
   selector: 'app-create-event',
@@ -10,58 +11,66 @@ import { EventService } from '../event.service';
 })
 export class CreateEventComponent implements OnInit {
   createEventForm: FormGroup;
-  tags: string[] = [];
-  selectedTags: string[] = [];
-  newTag: string = '';
+  categories: string[] = [];
+  selectedCategories: string[] = [];
+  newCategory: string = '';
 
   constructor(private fb: FormBuilder, private router: Router, private eventService: EventService) {
     this.createEventForm = this.fb.group({
       title: ['', Validators.required],
       description: ['', Validators.required],
       location: ['', Validators.required],
-      isPublic: [false],
+      is_public: [false, Validators.required],
       price: [null],
-      capacity: [null],
-      registrationEndDate: [null],
-      startDate: [null],
-      endDate: [null],
-      image: [null]
+      capacity: [null, Validators.required],
+      registration_end_date: [null, Validators.required],
+      start_date: [null, Validators.required],
+      end_date: [null, Validators.required],
+      photo: [null]
     });
   }
 
-  ngOnInit(): void {
-    this.tags = this.eventService.getTags();
+  async ngOnInit() {
+    this.categories = await this.eventService.getCategories();
   }
 
-  publish() {
+  async publish() {
     const formData = this.createEventForm.value;
     if (this.createEventForm.valid) {
-      // TO DO dodac tagi !!!
       const newEvent = this.createEventForm.value as Event;
-      const eventId = this.eventService.addEvent(newEvent);
+      newEvent.categories = this.selectedCategories;
+      newEvent.created_at = new Date();
+      newEvent.updated_at = new Date();
+      newEvent.price = this.createEventForm.value.price.toString();
+      console.log(newEvent);
+      const eventId = await this.eventService.addEvent(newEvent);
       this.router.navigate(['/event'], {
         queryParams: { id: eventId }
       });
     }
   }
 
-  addTag(tag: string) {
-    if (!this.isTagSelected(tag)) {
-      this.selectedTags.push(tag);
+  addCategory(category: string) {
+    if (!this.isCategorySelected(category)) {
+      this.selectedCategories.push(category);
     }
   }
   
-  removeSelectedTag(tagToRemove: string) {
-    if (this.selectedTags !== null) {
-      const index = this.selectedTags.indexOf(tagToRemove);
+  removeSelectedCategory(categoryToRemove: string) {
+    if (this.selectedCategories !== null) {
+      const index = this.selectedCategories.indexOf(categoryToRemove);
       if (index !== -1) {
-        this.selectedTags.splice(index, 1);
+        this.selectedCategories.splice(index, 1);
       }
     }
   }
 
-  isTagSelected(tag: string): boolean {
-    return this.selectedTags !== null && this.selectedTags.includes(tag);
+  isCategorySelected(category: string): boolean {
+    return this.selectedCategories !== null && this.selectedCategories.includes(category);
+  }
+
+  goBack() {
+    this.router.navigate(['/home']);
   }
 
 }

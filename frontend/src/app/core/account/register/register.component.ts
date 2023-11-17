@@ -41,11 +41,11 @@ export class RegisterComponent {
   }
   
 
-  register() {
+  async register() {
     if (this.registerForm.valid) {
-      if (this.accountService.register(this.registerForm.value.email, this.registerForm.value.password)) {
+      if (await this.accountService.register(this.registerForm.value.email, this.registerForm.value.password)) {
         this.accountService.register(this.registerForm.value.email, this.registerForm.value.password);
-        this.accountService.login(this.registerForm.value.email, this.registerForm.value.password)
+        await this.accountService.login(this.registerForm.value.email, this.registerForm.value.password)
         this.router.navigate(['/profile']);
       }else {
           this.showAlert = true;

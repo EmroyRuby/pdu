@@ -1,14 +1,20 @@
 import { CanActivateFn } from '@angular/router';
-import { AccountService } from './core/account/account.service'; 
+import { Injectable } from '@angular/core';
+import { AccountService } from './core/account/account.service';
 import { Router } from '@angular/router';
 
-export const authGuard: CanActivateFn = (route, state) => {
-  // Inject your AuthService or authentication service
-  const authService = new AccountService(); // Instantiate your AuthService (or use Dependency Injection)
-  
-  if (authService.isLoggedIn()) {
-    return true;
-  } else {
-    return new Router().createUrlTree(['/login']);; // Deny access to unauthenticated users.
+@Injectable({
+  providedIn: 'root'
+})
+export class AuthGuard {
+  constructor(private accountService: AccountService, private router: Router) {}
+
+  canActivate(): boolean {
+    if (this.accountService.isLoggedIn()) {
+      return true;
+    } else {
+      this.router.navigate(['/login']);
+      return false;
+    }
   }
-};
+}

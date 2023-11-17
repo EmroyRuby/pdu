@@ -9,20 +9,20 @@
         <div class="row">
         <!-- Left Column - Event Image -->
         <div class="col-md-5">
-            <img [src]="event.image" class="card-img-top" alt="{{ event.title }}">
+            <img [src]="event.photo" class="card-img-top" alt="{{ event.title }}">
         </div>
     
         <!-- Right Column - Short Info and Description -->
         <div class="col-md-7">
             <ul class="list-group list-group-flush mb-3">
                 <li class="list-group-item">
-                    <strong>Date and Time:</strong> {{ event.startDate | date: 'dd MMM yyyy, HH:mm' }} - {{ event.endDate | date: 'dd MMM yyyy, HH:mm' }}
+                    <strong>Date and Time:</strong> {{ event.start_date | date: 'dd MMM yyyy, HH:mm' }} - {{ event.end_date | date: 'dd MMM yyyy, HH:mm' }}
                 </li>
                 <li class="list-group-item">
                     <strong>Location:</strong> {{ event.location }}
                 </li>
                 <li class="list-group-item">
-                    <strong>Public:</strong> {{ event.isPublic ? 'Yes' : 'No' }}
+                    <strong>Public:</strong> {{ event.is_public ? 'Yes' : 'No' }}
                 </li>
                 <li class="list-group-item">
                     <strong>Price:</strong> {{ event.price | currency:'PLN':'symbol' }}
@@ -31,15 +31,15 @@
                     <strong>Capacity:</strong> {{ event.capacity }}
                 </li>
                 <li class="list-group-item">
-                    <strong>Registration End Date:</strong> {{ event.registrationEndDate | date: 'dd MMM yyyy, HH:mm' }}
+                    <strong>Registration End Date:</strong> {{ event.registration_end_date | date: 'dd MMM yyyy, HH:mm' }}
                 </li>
                 <li class="list-group-item">
-                    <strong>Organiser:</strong> {{ event.organiser }}
+                    <strong>Organiser:</strong> {{ event.user_email }}
                 </li>
             </ul>
             <div class="mx-3">
-                <button class="btn btn-primary mb-3 me-2 me-md-2" *ngIf="!isSignedUp()" (click)="signUp()" [disabled]="isSignUpDisabled">Sign up</button>
-                <button class="btn btn-primary mb-3 me-2 me-md-2" *ngIf="isSignedUp()" data-bs-toggle="modal" data-bs-target="#signOutModal" [disabled]="isSignUpDisabled">Sign out</button>
+                <button class="btn btn-primary mb-3 me-2 me-md-2" *ngIf="!isSignedUp" (click)="signUp()" [disabled]="isSignUpDisabled">Sign up</button>
+                <button class="btn btn-primary mb-3 me-2 me-md-2" *ngIf="isSignedUp" data-bs-toggle="modal" data-bs-target="#signOutModal" [disabled]="isSignUpDisabled">Sign out</button>
                 <div class="modal fade" id="signOutModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">
                       <div class="modal-content">
@@ -57,8 +57,8 @@
                       </div>
                     </div>
                   </div>
-                <button class="btn btn-primary mb-3 me-2 me-md-2" *ngIf="isOrganiser()" (click)="edit()" [disabled]="isSignUpDisabled">Edit</button>
-                <button class="btn btn-danger mb-3 me-2 me-md-2" *ngIf="isOrganiser()" data-bs-toggle="modal" data-bs-target="#deleteModal" [disabled]="isSignUpDisabled">Delete</button>
+                <button class="btn btn-primary mb-3 me-2 me-md-2" *ngIf="isOrganiser" (click)="edit()" [disabled]="isSignUpDisabled">Edit</button>
+                <button class="btn btn-danger mb-3 me-2 me-md-2" *ngIf="isOrganiser" data-bs-toggle="modal" data-bs-target="#deleteModal" [disabled]="isSignUpDisabled">Delete</button>
                 <div class="modal fade" id="deleteModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">
                       <div class="modal-content">
@@ -83,7 +83,7 @@
                 <h5>Description</h5>
                 <p>{{ event.description }}</p>
             </div>
-            <p><strong>Tags:</strong> {{ event.tags.join(', ') }}</p>
+            <p><strong>Categories:</strong> {{ event.categories?.join(', ') }}</p>
         </div>
     </div>
 </div>

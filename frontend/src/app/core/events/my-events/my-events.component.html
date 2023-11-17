@@ -18,14 +18,14 @@
         <div class="card mb-4" (click)="onCardClick(event)">
             <div class="row no-gutters">
             <div class="col-md-4">
-                <img src="{{ event.image }}" class="card-img" alt="{{ event.title }}">
+                <img src="{{ event.photo }}" class="card-img" alt="{{ event.title }}">
             </div>
             <div class="col-md-8">
                 <div class="card-body">
                     <h5 class="card-title">{{ event.title }}</h5>
                     <div class="card-text mb-2">
                         <i class="fa fa-calendar" style="width: 20px;"></i>
-                        {{ event.startDate | date:'dd MMM yyyy, HH:mm' }}
+                        {{ event.start_date | date: 'dd MMM yyyy, HH:mm' }}
                     </div>
                     <div class="card-text mb-2">
                         <i class="fa fa-location-arrow" style="width: 20px;"></i>
@@ -33,7 +33,7 @@
                     </div>
                     <div class="card-text mb-2">
                         <i class="fa fa-tag" style="width: 20px;"></i>
-                        {{ event.tags.join(', ') }}
+                        {{ event.categories?.join(', ') }}
                     </div>
                 </div>
             </div>

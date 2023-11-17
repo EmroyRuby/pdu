@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { AccountService } from '../account.service';
 import { Router } from '@angular/router';
+import { User } from '../../models';
 
 @Component({
   selector: 'app-profile',
@@ -8,10 +9,14 @@ import { Router } from '@angular/router';
   styleUrls: ['./profile.component.css']
 })
 export class ProfileComponent {
-  user: any;
+  user!: User;
 
   constructor(private accountService: AccountService, private router: Router) {
-    this.user = this.accountService.getUserData();
+  }
+
+  async ngOnInit(){
+    this.user = await this.accountService.getUserData();
+    console.log(this.user);
   }
 
   editProfile() {
@@ -19,7 +24,7 @@ export class ProfileComponent {
   }
 
   deleteAccount() {
-    this.accountService.deleteUser(this.user.email);
+    this.accountService.deleteUser();
     this.router.navigate(['/login']);
   }
 
