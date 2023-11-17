@@ -77,7 +77,7 @@ WSGI_APPLICATION = 'zpi.wsgi.application'
 
 # CORS
 CORS_ALLOW_CREDENTIALS = True
-SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_HTTPONLY = False
 SESSION_COOKIE_SAMESITE = 'None'
 CSRF_COOKIE_SAMESITE = 'None'
 CSRF_COOKIE_SECURE = True
@@ -213,7 +213,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': 'debug.log',
+            'filename': './logs/debug.log',
             'formatter': 'verbose'
         },
     },

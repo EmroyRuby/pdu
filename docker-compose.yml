@@ -30,6 +30,7 @@ services:
     volumes:
       - ./backend:/code
       - ./media:/var/www/zpi/media/
+      - ./logs:/code/logs
     ports:
       - "8000:8000"
     environment:
