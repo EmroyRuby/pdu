@@ -3,7 +3,7 @@ from datetime import date
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import permissions, viewsets, status
 from rest_framework.authentication import SessionAuthentication
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -311,13 +311,33 @@ class GuestRegistrationAPIView(APIView):
     )
     def post(self, request, *args, **kwargs):
         serializer = GuestRegistrationSerializer(data=request.data)
-        if serializer.is_valid():
+        if serializer.is_valid(raise_exception=True):
+            email = serializer.validated_data['email']
+            event = serializer.validated_data['event']
+
+            # Check if the event is public
+            if not event.is_public:
+                return Response(
+                    {"detail": "Only public events are open for guest registration."},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
+            # Check if the email is already registered for the event among users
+            if EventRegistration.objects.filter(event=event, user__email=email).exists():
+                raise ValidationError('This email is already registered for the event.')
+
+            # Check if the email is already registered for the event among guests
+            if GuestRegistration.objects.filter(event=event, email=email).exists():
+                raise ValidationError('This email is already registered for the event as a guest.')
+
+            # Save the new guest registration
             serializer.save()
             # You might want to send a response with further instructions
             return Response(
                 {"message": "Please check your email to confirm registration."},
                 status=status.HTTP_201_CREATED
             )
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
