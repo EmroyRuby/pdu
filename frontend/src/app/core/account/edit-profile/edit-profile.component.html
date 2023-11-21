@@ -11,6 +11,9 @@
               <div *ngIf="editEmailForm.get('newEmail')?.hasError('required') && editEmailForm.get('newEmail')?.touched" class="text-danger">
                 Email is required
               </div>
+              <div *ngIf="editEmailForm.get('newEmail')?.invalid && editEmailForm.get('newEmail')?.touched" class="text-danger">
+                Email is incorrect
+              </div>
             </div>
             <div class="mt-4">
               <button type="submit" class="btn btn-primary mb-3 me-md-2" [disabled]="editEmailForm.invalid">Edit Data</button>
