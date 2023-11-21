@@ -142,14 +142,19 @@ export class AccountService {
   }
 
   // Delete the authenticated user's account
-  async deleteUser(): Promise<void> {
+  async deleteUser(password: string): Promise<void> {
     try {
-      await firstValueFrom(this.http.post<User>(`http://127.0.0.1:8000/api/accounts/delete-account`, {}, {
+      await firstValueFrom(this.http.post<User>(`http://127.0.0.1:8000/api/accounts/delete-account`, 
+        {password: password}, {
         withCredentials: true,
+        headers: {
+          'X-CSRFToken': this.getCsrfToken(),
+        },
       }));
       this.isAuthenticated = false;
       this.userIdSubject.next(null);
       localStorage.removeItem('userId');
+      this.logout();
       console.log("Account deletion successful");
     } catch (error) {
       console.error("Error during deleteUser:", error);

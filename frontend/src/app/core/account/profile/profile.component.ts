@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { AccountService } from '../account.service';
 import { Router } from '@angular/router';
 import { User } from '../../models';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-profile',
@@ -10,8 +11,12 @@ import { User } from '../../models';
 })
 export class ProfileComponent {
   user!: User;
+  passwordForm: FormGroup;
 
-  constructor(private accountService: AccountService, private router: Router) {
+  constructor(private fb: FormBuilder, private accountService: AccountService, private router: Router) {
+    this.passwordForm = this.fb.group({
+      password: ['', Validators.required]
+    });
   }
 
   async ngOnInit(){
@@ -23,8 +28,8 @@ export class ProfileComponent {
     this.router.navigate(['/profile/edit']);
   }
 
-  deleteAccount() {
-    this.accountService.deleteUser();
+  async deleteAccount() {
+    await this.accountService.deleteUser(this.passwordForm.value.password);
     this.router.navigate(['/login']);
   }
 
