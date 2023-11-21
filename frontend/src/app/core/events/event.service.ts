@@ -18,7 +18,10 @@ export class EventService {
     categories: null,
     accessibility: "All",
     start_date: new Date,
-    end_date: null
+    end_date: null,
+    only_available: false,
+    price_less_than: null,
+    price_greater_than: null
   };
 
   constructor(private http: HttpClient, private accountService: AccountService) {
@@ -51,9 +54,23 @@ export class EventService {
       if (this.filters.end_date) {
         params = params.set('end_date', (this.filters.end_date).toISOString().slice(0,10));
       }
+      if (this.filters.price_greater_than) {
+        params = params.set('price_gte', this.filters.price_greater_than);
+      }
+      if (this.filters.price_less_than) {
+        params = params.set('price_lte', this.filters.price_less_than);
+      }
       // Make a GET request to retrieve events
       const events = await firstValueFrom(
-        this.http.get<Event[]>(`http://127.0.0.1:8000/api/events/`, { params }).pipe()
+        this.http.get<Event[]>(`http://127.0.0.1:8000/api/events/`, { params }).pipe(
+          map((items) => {
+            if (this.filters.only_available) {
+              return items.filter((item) => item.remaining_slots && item.remaining_slots > 0);
+            } else {
+              return items;
+            }
+          })
+        )
       );
       this.events = events;
       console.log('Events retrived successfully');

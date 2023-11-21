@@ -11,15 +11,20 @@ import { Event, EventsFilter } from '../../models';
 export class EventsCatalogComponent implements OnInit {
   events: Event[] = [];
   categories: string[] = [];
-  accessibility: any[] = ['All', 'Public', 'Private']
+  accessibility: any[] = ['All', 'Public', 'Private'];
   filters: EventsFilter = {
     title_pattern: null,
     categories: null,
     accessibility: null,
     start_date: null,
-    end_date: null
+    end_date: null,
+    only_available: null,
+    price_less_than: null,
+    price_greater_than: null
+
   };
   isDropdownOpen = false;
+  availabilityFilter: string = 'All';
 
   constructor(private router: Router, private route: ActivatedRoute, private eventService: EventService) { 
   }
@@ -62,11 +67,14 @@ export class EventsCatalogComponent implements OnInit {
   }
 
   filterByDates(start_date: string, end_date: string) {
-      if (start_date) {
-        this.filters.start_date = new Date(start_date);
+    if (start_date) {
+      if (new Date(start_date) < new Date()) {
+        start_date = new Date().toISOString();
       }
-      if (end_date) {
-        this.filters.end_date = new Date(end_date);
+      this.filters.start_date = new Date(start_date);
+    }
+    if (end_date) {
+      this.filters.end_date = new Date(end_date);
     }
     this.applyFilter();
   }
@@ -74,6 +82,25 @@ export class EventsCatalogComponent implements OnInit {
   filterByAccessibility(acc: string) {
     if (this.filters) {
         this.filters.accessibility = acc;
+      this.applyFilter();
+    }
+  }
+
+  filterByAvailability(only_available: boolean) {
+    if (this.filters) {
+        this.filters.only_available = only_available;
+      this.applyFilter();
+    }
+  }
+
+  filterByPrice(price_greater_than: string, price_less_than: string) {
+    if (this.filters) {
+      if (price_greater_than) {
+        this.filters.price_greater_than = price_greater_than;
+      }
+      if (price_less_than) {
+        this.filters.price_less_than = price_less_than;
+      }
       this.applyFilter();
     }
   }
@@ -95,15 +122,43 @@ export class EventsCatalogComponent implements OnInit {
       this.applyFilter();
   }
 
-  clearstart_dateFilter() {
-    this.filters.start_date = null;
+  clearStartDateFilter() {
+    this.filters.start_date = new Date();
     this.applyFilter();
   }
 
-  clearend_dateFilter() {
+  clearEndDateFilter() {
     this.filters.end_date = null;
     this.applyFilter();
   }
+
+  clearAvailabilityFilter() {
+    this.filters.only_available = false;
+    this.availabilityFilter = "All"
+    this.applyFilter();
+  }
+
+  clearPriceGreaterThanFilter() {
+    this.filters.price_greater_than = null;
+    this.applyFilter();
+  }
+
+  clearPriceLessThanFilter() {
+    this.filters.price_less_than = null;
+    this.applyFilter();
+  }
+
+  clearAll() {
+    this.filters.categories = null;
+    this.filters.accessibility = "All";
+    this.filters.start_date = new Date();
+    this.filters.end_date = null;
+    this.filters.only_available = false;
+    this.availabilityFilter = "All"
+    this.filters.price_greater_than = null;
+    this.filters.price_less_than = null;
+    this.applyFilter();
+  } 
 
   isCategorySelected(category: string): boolean {
     return this.filters.categories !== null && this.filters.categories.includes(category);

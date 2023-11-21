@@ -50,6 +50,48 @@
         </li>
       </ul>
     </div>
+    <!-- Dropdown Button for Availability Selection -->
+      <div class="dropdown">
+        <button class="btn btn-light dropdown-toggle mb-3 me-2 me-md-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          Filter by Availability
+        </button>
+        <ul class="dropdown-menu p-2">
+          <li>
+            <label class="form-check-label" style="display: block;">
+              <input type="radio" class="form-check-input" (change)="filterByAvailability(false)" [(ngModel)]="availabilityFilter" value="All"> All
+            </label>
+          </li>
+          <li>
+            <label class="form-check-label" style="display: block;">
+              <input type="radio" class="form-check-input" (change)="filterByAvailability(true)" [(ngModel)]="availabilityFilter" value="Only available"> Only available
+            </label>
+          </li>
+        </ul>
+      </div>
+      
+    <!-- Dropdown Button for Price Selection -->
+    <div class="dropdown">
+      <button class="btn btn-light dropdown-toggle mb-3 me-2 me-md-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        Filter by Price
+      </button>
+      <ul class="dropdown-menu p-2">
+        <div class="mb-3">
+          <label for="min_price">Min Price:</label>
+          <input type="number" id="min_price" class="form-control" #min_price>
+        </div>
+        <div class="mb-3">
+          <label for="max_price">Max Price:</label>
+          <input type="number" id="max_price" class="form-control" #max_price>
+        </div>
+        <div>
+          <button class="btn btn-primary" (click)="filterByPrice(min_price.value, max_price.value)">Filter</button>
+        </div>
+      </ul>
+    </div>
+  </div>
+  <!-- Clear all filters button -->
+  <div class="btn btn-secondary mb-3 me-2 me-md-2" (click)="clearAll()">
+    Clear filters
   </div>
   <!-- Selected Filters List -->
   <div id="selectedFilters" *ngIf="(filters?.categories?.length ?? 0) > 0 || (filters?.accessibility?.length ?? 0) > 0 || filters?.start_date || filters?.end_date">
@@ -61,12 +103,24 @@
       <button type="button" class="btn btn-secondary me-md-2">
         {{ filters.accessibility }}
       </button>
-      <div *ngIf="filters?.start_date" class="btn btn-secondary me-md-2" (click)="clearstart_dateFilter()">
+      <div *ngIf="filters?.start_date" class="btn btn-secondary me-md-2" (click)="clearStartDateFilter()">
         Start Date: {{ filters.start_date | date:'dd MMM yy' }}
         <i class="fa fa-times"></i>
       </div>
-      <div *ngIf="filters?.end_date" class="btn btn-secondary me-md-2" (click)="clearend_dateFilter()">
+      <div *ngIf="filters?.end_date" class="btn btn-secondary me-md-2" (click)="clearEndDateFilter()">
         End Date: {{ filters.end_date | date:'dd MMM yy' }}
+        <i class="fa fa-times"></i>
+      </div>
+      <div *ngIf="filters?.only_available" class="btn btn-secondary me-md-2" (click)="clearAvailabilityFilter()">
+        Only available
+        <i class="fa fa-times"></i>
+      </div>
+      <div *ngIf="filters?.price_greater_than" class="btn btn-secondary me-md-2" (click)="clearPriceGreaterThanFilter()">
+        Price &gt; {{ filters.price_greater_than }}
+        <i class="fa fa-times"></i>
+      </div>
+      <div *ngIf="filters?.price_less_than" class="btn btn-secondary me-md-2" (click)="clearPriceLessThanFilter()">
+        Price &lt; {{ filters.price_less_than }}
         <i class="fa fa-times"></i>
       </div>
     </div>
