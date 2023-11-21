@@ -114,7 +114,10 @@ export class AccountService {
     try {
       const userData = await firstValueFrom(this.http.put<User>(`http://127.0.0.1:8000/api/accounts/edit`, 
         {email: email}, {
-        withCredentials: true
+        withCredentials: true,
+        headers: {
+          'X-CSRFToken': this.getCsrfToken(),
+        },
       }));
       console.log("Updated user with id: ", userData.id, ", new data: ", userData);
     } catch (error) {
