@@ -83,7 +83,7 @@ class EventViewSet(BaseViewSet):
         logger.info(f"Notification sent for event {event.id} with subject '{DELETE_SUBJECT}'.")
 
         # Perform the deletion
-        # event.delete()
+        event.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def update(self, request, *args, **kwargs):
