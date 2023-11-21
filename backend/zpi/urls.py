@@ -24,7 +24,7 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework.routers import DefaultRouter
 
 from events.views import EventViewSet, EventNotificationViewSet, EventRegistrationViewSet, \
-    CategoryViewSet, CommentViewSet
+    CategoryViewSet, CommentViewSet, GuestRegistrationAPIView, VerifyGuestRegistration
 from zpi import settings
 
 # from accounts.views import *
@@ -59,6 +59,9 @@ urlpatterns = [
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('api/accounts/', include('accounts.urls')),
+    path('api/register-guest/', GuestRegistrationAPIView.as_view(), name='register-guest'),
+    path('verify_registration', VerifyGuestRegistration.as_view(), name='register-guest'),
+
 ]
 
 if settings.DEBUG:
