@@ -130,7 +130,10 @@ export class AccountService {
     try {
       await firstValueFrom(this.http.post(`http://127.0.0.1:8000/api/accounts/password-change`, 
         {old_password: old_password, new_password: new_password}, {
-        withCredentials: true
+        withCredentials: true,
+        headers: {
+          'X-CSRFToken': this.getCsrfToken(),
+        },
       }));
       console.log("Changed password");
     } catch (error) {
@@ -142,7 +145,7 @@ export class AccountService {
   async deleteUser(): Promise<void> {
     try {
       await firstValueFrom(this.http.post<User>(`http://127.0.0.1:8000/api/accounts/delete-account`, {}, {
-        withCredentials: true
+        withCredentials: true,
       }));
       this.isAuthenticated = false;
       this.userIdSubject.next(null);

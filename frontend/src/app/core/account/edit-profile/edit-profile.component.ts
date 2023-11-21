@@ -22,27 +22,29 @@ export class EditProfileComponent implements OnInit{
       'newEmail': new FormControl('', [Validators.required, Validators.email])
     });
     this.changePasswordForm = this.fb.group({
-      oldPassword: ['', Validators.required],
-      newPassword: ['', Validators.required]
+      'oldPassword': new FormControl('', Validators.required),
+      'newPassword': new FormControl('', Validators.required)
     });
   }
 
   ngOnInit() {}
 
   async editEmail() {
-    console.log(this.editEmailForm);
-    console.log(this.editEmailForm.value.newEmail);
     if (this.editEmailForm.valid) {
       await this.accountService.updateUser(this.editEmailForm.value.newEmail);
     }
     else{
-      console.log("incorect email");
+      console.log("incorrect email was provided: " + this.editEmailForm.value.newEmail);
     }
   }
 
   async changePassword() {
     if (this.changePasswordForm.valid) {
       await this.accountService.changePassword(this.changePasswordForm.value.oldPassword, this.changePasswordForm.value.newPassword);
+    }
+    else{
+      console.log("incorrect old password: " + this.changePasswordForm.value.oldPassword);
+      console.log("incorrect new password: " + this.changePasswordForm.value.newPassword);
     }
   }
 }
