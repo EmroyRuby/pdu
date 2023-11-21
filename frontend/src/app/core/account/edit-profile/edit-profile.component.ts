@@ -1,20 +1,25 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AccountService } from '../account.service';
 import { Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-edit-profile',
   templateUrl: './edit-profile.component.html',
   styleUrls: ['./edit-profile.component.css']
 })
-export class EditProfileComponent {
+export class EditProfileComponent implements OnInit{
   editEmailForm: FormGroup;
   changePasswordForm: FormGroup;
+  loading = false;
 
-  constructor(private fb: FormBuilder, private accountService: AccountService, private router: Router) {
+  constructor(
+    private fb: FormBuilder, 
+    private accountService: AccountService, 
+    private router: Router
+  ) {
     this.editEmailForm = this.fb.group({
-      newEmail: ['', Validators.required]
+      'newEmail': new FormControl('', [Validators.required, Validators.email])
     });
     this.changePasswordForm = this.fb.group({
       oldPassword: ['', Validators.required],
@@ -25,8 +30,13 @@ export class EditProfileComponent {
   ngOnInit() {}
 
   async editEmail() {
+    console.log(this.editEmailForm);
+    console.log(this.editEmailForm.value.newEmail);
     if (this.editEmailForm.valid) {
       await this.accountService.updateUser(this.editEmailForm.value.newEmail);
+    }
+    else{
+      console.log("incorect email");
     }
   }
 

@@ -7,13 +7,13 @@
           <form [formGroup]="editEmailForm" (ngSubmit)="editEmail()">
             <div class="form-group">
               <label for="newEmail">New email:</label>
-              <input type="text" id="newEmail" class="form-control">
+              <input formControlName="newEmail" type="text" id="newEmail" class="form-control">
               <div *ngIf="editEmailForm.get('newEmail')?.hasError('required') && editEmailForm.get('newEmail')?.touched" class="text-danger">
                 Email is required
               </div>
             </div>
             <div class="mt-4">
-              <button type="submit" class="btn btn-primary mb-3 me-md-2" [disabled]="editEmailForm.invalid">Edit Data</button>
+              <button type="submit" class="btn btn-primary mb-3 me-md-2" [disabled]="loading">Edit Data</button>
             </div>
           </form>
           <form [formGroup]="changePasswordForm" (ngSubmit)="changePassword()">
