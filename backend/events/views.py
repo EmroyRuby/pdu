@@ -15,6 +15,10 @@ from .serializers import (EventSerializer, EventNotificationSerializer,
                           EventRegistrationSerializer,
                           CategorySerializer, CommentSerializer, GuestRegistrationSerializer)
 import logging
+# TODO
+# SPRAWDZIC JAK ZACHOWUJE SIE CAPACITY
+# DODAC WYSYLANIE POWIADOMIEN DO GOSCI
+# JEZELI EVENT JEST PRIVATE TO MUSI MIEC ILOSC MIEJSC?
 
 logger = logging.getLogger('events')
 
@@ -56,14 +60,14 @@ class EventViewSet(BaseViewSet):
     filter_params = {
         'id': 'id',
         'title': 'title__icontains',
-        'location': 'location__iexact',
+        'location': 'location__icontains',
         'is_public': 'is_public',
         'category': 'categories__name__in',
         'start_date': 'start_date__gte',
         'end_date': 'end_date__lte',
         'price_gte': 'price__gte',
         'price_lte': 'price__lte',
-        'user': 'user',
+        'user': 'user'
     }
 
     # to associate event with current user id
