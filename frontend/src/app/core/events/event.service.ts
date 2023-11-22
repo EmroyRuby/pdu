@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Event, Category, EventRegistration, EventsFilter } from '../models';
+import { Event, Category, EventRegistration, EventsFilter, Comment } from '../models';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { BehaviorSubject, Observable, firstValueFrom, map } from 'rxjs';
 import { AccountService } from '../account/account.service';
@@ -308,6 +308,40 @@ export class EventService {
       );
     } catch (error) {
       console.error('Error during signOut method:', error);
+      throw error;
+    }
+  }
+
+  async listComments(eventId: number): Promise<Comment[]> {
+    try {
+      let params = new HttpParams();
+      params = params.set('event', eventId);
+      // Make a GET request to retrieve comments
+      const comments = await firstValueFrom(
+        this.http.get<Comment[]>(`http://127.0.0.1:8000/api/comments/`, {params} ).pipe()
+      );
+      console.log('Comments retrived successfully');
+      return comments;
+    } catch (error) {
+      console.error('Error during GET comments HTTP request:', error);
+      throw error;
+    }
+  }
+
+  async addComment(comment: Comment) {
+    try {
+      const options = {
+        withCredentials: true,
+        headers: {
+          'X-CSRFToken': this.accountService.getCsrfToken(),
+        },
+      };
+      const commentResp = await firstValueFrom(
+        this.http.post(`http://127.0.0.1:8000/api/comments/`, comment, options).pipe()
+      );
+      console.log("Added comment: " + commentResp);
+    } catch (error) {
+      console.error('Error during POST addComment HTTP request:', error);
       throw error;
     }
   }

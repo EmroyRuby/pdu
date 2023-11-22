@@ -14,6 +14,7 @@ export class CreateEventComponent implements OnInit {
   categories: string[] = [];
   selectedCategories: string[] = [];
   newCategory: string = '';
+  addNewCategory: string = '';
 
   constructor(private fb: FormBuilder, private router: Router, private eventService: EventService) {
     this.createEventForm = this.fb.group({
@@ -54,6 +55,7 @@ export class CreateEventComponent implements OnInit {
     if (!this.isCategorySelected(category)) {
       this.selectedCategories.push(category);
     }
+    this.addNewCategory = '';
   }
   
   removeSelectedCategory(categoryToRemove: string) {

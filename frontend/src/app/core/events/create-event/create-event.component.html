@@ -60,7 +60,7 @@
                 <!-- Capacity -->
                 <div class="form-group mb-3">
                     <label for="capacity">Capacity:<span class="text-danger">*</span></label>
-                    <input type="number" class="form-control" id="capacity" formControlName="capacity" placeholder="Enter event capacity">
+                    <input type="number" class="form-control" id="capacity" formControlName="capacity" placeholder="Enter event capacity" [disabled]="createEventForm.get('is_public')?.value">
                     <div *ngIf="createEventForm.get('capacity')?.hasError('required') && createEventForm.get('capacity')?.touched" class="text-danger">
                         Capacity is required
                     </div>
@@ -97,7 +97,7 @@
                 <div class="form-group mb-3">
                     <label for="newCategory">Add Categoriess<span class="text-danger">*</span></label>
                     <div class="input-group">
-                      <input type="text" class="form-control" list="datalistOptions" id="exampleDataList" placeholder="Enter category" autocomplete="off" #newCategory>
+                      <input [(ngModel)]="addNewCategory" type="text" class="form-control" list="datalistOptions" id="exampleDataList" placeholder="Enter category" autocomplete="off" #newCategory>
                         <datalist id="datalistOptions">
                             <option *ngFor="let category of categories" [value]="category"></option>
                         </datalist>    

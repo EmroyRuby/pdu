@@ -47,3 +47,12 @@
     price_less_than: string | null,
     price_greater_than: string | null
   }
+
+  export interface Comment {
+    id?: number;
+    content: string;
+    created_at?: Date;
+    updated_at?: Date;
+    user: number;
+    event: number;
+  }
