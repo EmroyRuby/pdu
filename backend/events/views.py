@@ -1,5 +1,6 @@
 from datetime import date
 
+from django.utils import timezone
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import permissions, viewsets, status
 from rest_framework.authentication import SessionAuthentication
@@ -56,14 +57,14 @@ class EventViewSet(BaseViewSet):
     filter_params = {
         'id': 'id',
         'title': 'title__icontains',
-        'location': 'location__iexact',
+        'location': 'location__icontains',
         'is_public': 'is_public',
         'category': 'categories__name__in',
         'start_date': 'start_date__gte',
         'end_date': 'end_date__lte',
         'price_gte': 'price__gte',
         'price_lte': 'price__lte',
-        'user': 'user',
+        'user': 'user'
     }
 
     # to associate event with current user id
@@ -79,9 +80,13 @@ class EventViewSet(BaseViewSet):
         if not (event.user == request.user or request.user.is_superuser):
             raise PermissionDenied("You do not have permission to delete this event.")
 
-        # Send notification before deleting
-        registered_emails = list(EventRegistration.objects.filter(event=event.id)
+        # regular user emails registered for event
+        registered_emails = list(EventRegistration.objects.filter(event=event)
                                  .values_list('user__email', flat=True))
+
+        # add guest registrations to required email list
+        registered_emails += GuestRegistration.objects.filter(event=event, verified=True).values_list('email',
+                                                                                                      flat=True)
         logger.info(f"Registered emails for event {event.id}: {registered_emails}")
         send_notification(emails=registered_emails, subject=DELETE_SUBJECT, content=DELETE_CONTENT)
         logger.info(f"Notification sent for event {event.id} with subject '{DELETE_SUBJECT}'.")
@@ -115,9 +120,13 @@ class EventViewSet(BaseViewSet):
             if event.location != original_location:
                 message += "\nNew location: {}".format(event.location)
 
-            # Send notification to all registered users
-            registered_emails = list(event.eventregistration_set.filter(is_registered=True)
+            # regular user emails registered for event
+            registered_emails = list(EventRegistration.objects.filter(event=event)
                                      .values_list('user__email', flat=True))
+
+            # add guest registrations to required email list
+            registered_emails += GuestRegistration.objects.filter(event=event, verified=True).values_list('email',
+                                                                                                          flat=True)
             logger.info(f"Sending update notification for event {event.id} to emails: {registered_emails}")
             send_notification(emails=registered_emails, subject="Event Update Notification", content=message)
 
@@ -144,8 +153,14 @@ class EventNotificationViewSet(BaseViewSet):
                 status=status.HTTP_403_FORBIDDEN
             )
 
+        # regular user emails registered for event
         registered_emails = list(EventRegistration.objects.filter(event=event_id)
                                  .values_list('user__email', flat=True))
+
+        # add guest registrations to required email list
+        registered_emails += GuestRegistration.objects.filter(event=event, verified=True).values_list('email',
+                                                                                                      flat=True)
+
         logger.info(f"Registered emails for event {event_id}: {registered_emails}")
         send_notification(emails=registered_emails, subject=request.data['title'], content=request.data['content'])
         logger.info(f"Notification sent for event {event_id} with subject '{request.data['title']}'.")
@@ -295,6 +310,46 @@ class CommentViewSet(BaseViewSet):
         'content': 'content__iexact'
     }
 
+    def create(self, request, *args, **kwargs):
+        # Get the event ID from the request data
+        event_id = request.data.get('event')
+
+        # Ensure the event ID is provided
+        if not event_id:
+            return Response({"detail": "Event ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Ensure the event exists
+            event = Event.objects.get(pk=event_id)
+
+            # Check if the event has already ended
+            if timezone.now() <= event.end_date:
+                return Response({"detail": "Can't comment on an event that hasn't ended."},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            # Check if the user is registered for the event
+            if not EventRegistration.objects.filter(user=request.user, event=event, is_registered=True).exists():
+                return Response({"detail": "You must be registered for the event to comment."},
+                                status=status.HTTP_403_FORBIDDEN)
+
+            # Check if the user has already commented on the event
+            if Comment.objects.filter(user=request.user, event=event).exists():
+                return Response({"detail": "You can only comment once on an event."},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            # Create the comment
+            comment_serializer = self.get_serializer(data=request.data)
+            comment_serializer.is_valid(raise_exception=True)
+            comment_serializer.save(user=request.user, event=event)
+
+            return Response(comment_serializer.data, status=status.HTTP_201_CREATED)
+
+        except Event.DoesNotExist:
+            return Response({"detail": "Event does not exist."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            # Handle other possible exceptions
+            return Response({"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 class GuestRegistrationAPIView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -327,7 +382,7 @@ class GuestRegistrationAPIView(APIView):
                 raise ValidationError('This email is already registered for the event.')
 
             # Check if the email is already registered for the event among guests
-            if GuestRegistration.objects.filter(event=event, email=email).exists():
+            if GuestRegistration.objects.filter(event=event, email=email, verified=True).exists():
                 raise ValidationError('This email is already registered for the event as a guest.')
 
             # Save the new guest registration
