@@ -1,5 +1,6 @@
 from datetime import date
 
+from django.utils import timezone
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import permissions, viewsets, status
 from rest_framework.authentication import SessionAuthentication
@@ -15,10 +16,7 @@ from .serializers import (EventSerializer, EventNotificationSerializer,
                           EventRegistrationSerializer,
                           CategorySerializer, CommentSerializer, GuestRegistrationSerializer)
 import logging
-# TODO
-# SPRAWDZIC JAK ZACHOWUJE SIE CAPACITY
 # DODAC WYSYLANIE POWIADOMIEN DO GOSCI
-# JEZELI EVENT JEST PRIVATE TO MUSI MIEC ILOSC MIEJSC?
 
 logger = logging.getLogger('events')
 
@@ -299,6 +297,48 @@ class CommentViewSet(BaseViewSet):
         'content': 'content__iexact'
     }
 
+    def create(self, request, *args, **kwargs):
+        # Get the event ID from the request data
+        event_id = request.data.get('event')
+
+        # Ensure the event ID is provided
+        if not event_id:
+            return Response({"detail": "Event ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Ensure the event exists
+            event = Event.objects.get(pk=event_id)
+
+            # Check if the event has already ended
+            if timezone.now() <= event.end_date:
+                return Response({"detail": "Can't comment on an event that hasn't ended."},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            # Check if the user is registered for the event
+            if not EventRegistration.objects.filter(user=request.user, event=event, is_registered=True).exists():
+                return Response({"detail": "You must be registered for the event to comment."},
+                                status=status.HTTP_403_FORBIDDEN)
+
+            # Check if the user has already commented on the event
+            if Comment.objects.filter(user=request.user, event=event).exists():
+                return Response({"detail": "You can only comment once on an event."},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            # Create the comment
+            comment_serializer = self.get_serializer(data=request.data)
+            comment_serializer.is_valid(raise_exception=True)
+            comment_serializer.save(user=request.user, event=event)
+
+            return Response(comment_serializer.data, status=status.HTTP_201_CREATED)
+
+        except Event.DoesNotExist:
+            return Response({"detail": "Event does not exist."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            # Handle other possible exceptions
+            return Response({"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
 
 class GuestRegistrationAPIView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -331,7 +371,7 @@ class GuestRegistrationAPIView(APIView):
                 raise ValidationError('This email is already registered for the event.')
 
             # Check if the email is already registered for the event among guests
-            if GuestRegistration.objects.filter(event=event, email=email).exists():
+            if GuestRegistration.objects.filter(event=event, email=email, verified=True).exists():
                 raise ValidationError('This email is already registered for the event as a guest.')
 
             # Save the new guest registration
