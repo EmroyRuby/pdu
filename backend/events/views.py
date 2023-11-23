@@ -16,7 +16,6 @@ from .serializers import (EventSerializer, EventNotificationSerializer,
                           EventRegistrationSerializer,
                           CategorySerializer, CommentSerializer, GuestRegistrationSerializer)
 import logging
-# DODAC WYSYLANIE POWIADOMIEN DO GOSCI
 
 logger = logging.getLogger('events')
 
@@ -81,9 +80,13 @@ class EventViewSet(BaseViewSet):
         if not (event.user == request.user or request.user.is_superuser):
             raise PermissionDenied("You do not have permission to delete this event.")
 
-        # Send notification before deleting
-        registered_emails = list(EventRegistration.objects.filter(event=event.id)
+        # regular user emails registered for event
+        registered_emails = list(EventRegistration.objects.filter(event=event)
                                  .values_list('user__email', flat=True))
+
+        # add guest registrations to required email list
+        registered_emails += GuestRegistration.objects.filter(event=event, verified=True).values_list('email',
+                                                                                                      flat=True)
         logger.info(f"Registered emails for event {event.id}: {registered_emails}")
         send_notification(emails=registered_emails, subject=DELETE_SUBJECT, content=DELETE_CONTENT)
         logger.info(f"Notification sent for event {event.id} with subject '{DELETE_SUBJECT}'.")
@@ -117,9 +120,13 @@ class EventViewSet(BaseViewSet):
             if event.location != original_location:
                 message += "\nNew location: {}".format(event.location)
 
-            # Send notification to all registered users
-            registered_emails = list(event.eventregistration_set.filter(is_registered=True)
+            # regular user emails registered for event
+            registered_emails = list(EventRegistration.objects.filter(event=event)
                                      .values_list('user__email', flat=True))
+
+            # add guest registrations to required email list
+            registered_emails += GuestRegistration.objects.filter(event=event, verified=True).values_list('email',
+                                                                                                          flat=True)
             logger.info(f"Sending update notification for event {event.id} to emails: {registered_emails}")
             send_notification(emails=registered_emails, subject="Event Update Notification", content=message)
 
@@ -146,8 +153,14 @@ class EventNotificationViewSet(BaseViewSet):
                 status=status.HTTP_403_FORBIDDEN
             )
 
+        # regular user emails registered for event
         registered_emails = list(EventRegistration.objects.filter(event=event_id)
                                  .values_list('user__email', flat=True))
+
+        # add guest registrations to required email list
+        registered_emails += GuestRegistration.objects.filter(event=event, verified=True).values_list('email',
+                                                                                                      flat=True)
+
         logger.info(f"Registered emails for event {event_id}: {registered_emails}")
         send_notification(emails=registered_emails, subject=request.data['title'], content=request.data['content'])
         logger.info(f"Notification sent for event {event_id} with subject '{request.data['title']}'.")
@@ -336,8 +349,6 @@ class CommentViewSet(BaseViewSet):
         except Exception as e:
             # Handle other possible exceptions
             return Response({"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
 
 
 class GuestRegistrationAPIView(APIView):
