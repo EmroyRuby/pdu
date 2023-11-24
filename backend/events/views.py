@@ -16,6 +16,7 @@ from .serializers import (EventSerializer, EventNotificationSerializer,
                           EventRegistrationSerializer,
                           CategorySerializer, CommentSerializer, GuestRegistrationSerializer)
 import logging
+from .recommendation_model import get_recommendations
 
 logger = logging.getLogger('events')
 
@@ -426,3 +427,30 @@ class VerifyGuestRegistration(APIView):
         # After verification, you might want to redirect the user or send a success response
         return Response({"message": "Email verified successfully. You are now registered for the event."},
                         status=status.HTTP_200_OK)
+
+
+class UserRecommendation(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [SessionAuthentication]
+
+    def get(self, request, *args, **kwargs):
+        try:
+            # Retrieve the logged-in user's email
+            user_email = request.user.email
+            recommended_events_id = get_recommendations(user_email)
+
+            # Fetch the recommended events from the database
+            recommended_events = Event.objects.filter(id__in=recommended_events_id)
+
+            # Serialize the event data
+            serializer = EventSerializer(recommended_events, many=True)
+            return Response(serializer.data)
+
+        except Event.DoesNotExist:
+            # Handle the case where the Event does not exist
+            return Response({'error': 'Events not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        # except Exception as e:
+        #     # Handle any other exceptions
+        #     return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
