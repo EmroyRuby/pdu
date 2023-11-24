@@ -1,6 +1,7 @@
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
+
 # from models import Event
 # Assume you have a DataFrame `events` with 'title', 'description', and 'category'
 # And a DataFrame `user_profiles` with a 'liked_events' column containing event titles
@@ -474,8 +475,8 @@ registration_json = [
 # events = pd.DataFrame(Event.objects.get())
 events = pd.DataFrame(event_json)
 
-user_registrations = pd.DataFrame(registration_json, columns=['event', 'user_email'])
-print(user_registrations)
+user_profiles = pd.DataFrame(registration_json, columns=['event'])
+# user_profiles = pd.DataFrame(EventRegistration.objects.get(user_email=))
 
 # Create TF-IDF vectors for your event descriptions
 tfidf = TfidfVectorizer(stop_words='english')
@@ -485,26 +486,29 @@ tfidf_matrix = tfidf.fit_transform(events['description'])
 cosine_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)
 
 
-# # Function to get recommendations based on a user profile
-# def get_recommendations(user_id):
-#     user_likes = user_profiles.loc[user_id, 'liked_events']
-#     sim_scores = []
-#
-#     for event in user_likes:
-#         # Get the index of the event that matches the title
-#         idx = events.index[events['title'] == event].tolist()[0]
-#
-#         # Get the pairwsie similarity scores of all events with that event
-#         sim_scores.extend(list(enumerate(cosine_sim[idx])))
-#
-#     # Sort the events based on the similarity scores
-#     sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
-#
-#     # Get the scores of the 10 most similar events
-#     sim_scores = sim_scores[1:11]
-#
-#     # Get the event indices
-#     event_indices = [i[0] for i in sim_scores]
-#
-#     # Return the top 10 most similar events
-#     return events['title'].iloc[event_indices]
+# Function to get recommendations based on a user profile
+def get_recommendations(user_email):
+    user_likes = user_profiles['event'].values.tolist()
+    sim_scores = []
+
+    for event_id in user_likes:
+        # Check if the event ID is in the events DataFrame
+        if event_id in events['id'].values:
+            idx = events.index[events['id'] == event_id].tolist()
+            # If the event ID exists, get the pairwise similarity scores of all events with that event
+            if idx:
+                sim_scores.extend(list(enumerate(cosine_sim[idx[0]])))
+
+    # Sort the events based on the similarity scores
+    sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+
+    # Get the scores of the 3 most similar events
+    sim_scores = sim_scores[1:4]
+
+    # Get the event indices
+    event_indices = [i[0] for i in sim_scores]
+
+    # Return the top 10 most similar events
+    return events['title'].iloc[event_indices]
+
+print(get_recommendations('smithlaura@example.net'))
