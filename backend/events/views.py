@@ -5,6 +5,7 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework import permissions, viewsets, status
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.exceptions import PermissionDenied, ValidationError
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -53,6 +54,7 @@ class BaseViewSet(viewsets.ModelViewSet):
 
 class EventViewSet(BaseViewSet):
     permission_classes = [IsOwnerOrReadOnlyOrSuperuser]
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
     queryset = Event.objects.all()
     serializer_class = EventSerializer
     filter_params = {
