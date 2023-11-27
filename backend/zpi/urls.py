@@ -24,7 +24,7 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework.routers import DefaultRouter
 
 from events.views import EventViewSet, EventNotificationViewSet, EventRegistrationViewSet, \
-    CategoryViewSet, CommentViewSet, GuestRegistrationAPIView, VerifyGuestRegistration
+    CategoryViewSet, CommentViewSet, GuestRegistrationAPIView, VerifyGuestRegistration, UserRecommendation
 from zpi import settings
 
 # from accounts.views import *
@@ -61,6 +61,7 @@ urlpatterns = [
     path('api/accounts/', include('accounts.urls')),
     path('api/register-guest/', GuestRegistrationAPIView.as_view(), name='register-guest'),
     path('verify_registration', VerifyGuestRegistration.as_view(), name='register-guest'),
+    path('api/user-recommendation', UserRecommendation.as_view(), name='user-recommendation'),
 
 ]
 
