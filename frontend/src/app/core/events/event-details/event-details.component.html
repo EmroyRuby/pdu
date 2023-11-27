@@ -27,8 +27,8 @@
                 <li class="list-group-item">
                     <strong>Price:</strong> {{ event.price | currency:'PLN':'symbol' }}
                 </li>
-                <li class="list-group-item" *ngIf="!event.is_public">
-                    <strong>Capacity:</strong> {{ event.remaining_slots }} / {{ event.capacity }}
+                <li class="list-group-item" *ngIf="!event.is_public && event.capacity != undefined && event.remaining_slots != undefined">
+                    <strong>Capacity:</strong> {{ event.capacity - event.remaining_slots }} / {{ event.capacity }}
                 </li>
                 <li class="list-group-item">
                     <strong>Registration End Date:</strong> {{ event.registration_end_date | date: 'dd MMM yyyy, HH:mm' }}
@@ -103,7 +103,7 @@
         </div>
 
         <!-- Add Comment Form -->
-        <div class="mt-4" *ngIf="isSignedUp && isOver">
+        <div class="mt-4" *ngIf="isSignedUp && isOver && hasCommentsLeft">
           <h5>Add a Comment</h5>
           <div class="d-flex align-items-center">
               <div class="me-2">

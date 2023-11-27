@@ -97,7 +97,7 @@
                 <div class="form-group mb-3">
                     <label for="newCategory">Add Categoriess<span class="text-danger">*</span></label>
                     <div class="input-group">
-                      <input [(ngModel)]="addNewCategory" type="text" class="form-control" list="datalistOptions" id="exampleDataList" placeholder="Enter category" autocomplete="off" #newCategory>
+                      <input type="text" class="form-control" list="datalistOptions" id="exampleDataList" placeholder="Enter category" autocomplete="off" #newCategory>
                         <datalist id="datalistOptions">
                             <option *ngFor="let category of categories" [value]="category"></option>
                         </datalist>    

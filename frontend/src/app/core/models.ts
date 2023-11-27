@@ -27,7 +27,7 @@
     user?: number;
     user_email?: string;
     categories?: string[];
-    photo?: string;
+    photo?: File;
   }
   
   export interface User {

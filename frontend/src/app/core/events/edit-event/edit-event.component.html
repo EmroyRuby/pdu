@@ -60,7 +60,7 @@
                 <!-- Capacity -->
                 <div class="form-group mb-3">
                     <label for="capacity">Capacity:<span class="text-danger">*</span></label>
-                    <input type="number" class="form-control" id="capacity" formControlName="capacity" placeholder="Enter event capacity">
+                    <input type="number" class="form-control" id="capacity" formControlName="capacity" placeholder="Enter event capacity"  [disabled]="editEventForm.get('is_public')?.value">
                     <div *ngIf="editEventForm.get('capacity')?.hasError('required') && editEventForm.get('capacity')?.touched" class="text-danger">
                         Capacity is required
                     </div>

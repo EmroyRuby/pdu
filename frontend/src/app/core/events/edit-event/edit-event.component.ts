@@ -53,9 +53,10 @@ export class EditEventComponent implements OnInit {
           price: Number(this.event.price),
           capacity: this.event.capacity,
           remaining_slots: this.event.remaining_slots,
-          registration_end_date: this.event.registration_end_date,
-          start_date: this.event.start_date,
-          end_date: this.event.end_date,
+          // CHECK
+          registration_end_date: new Date(this.event.registration_end_date),
+          start_date: new Date(this.event.start_date),
+          end_date: new Date(this.event.end_date),
           created_at: this.event.created_at,
           updated_at: this.event.updated_at,
           user: this.event.user,
@@ -71,7 +72,6 @@ export class EditEventComponent implements OnInit {
   }
 
   async publish() {
-    const formData = this.editEventForm.value;
     if (this.editEventForm.valid) {
       let newEvent = this.editEventForm.value as Event;
       newEvent.categories = this.selectedCategories;

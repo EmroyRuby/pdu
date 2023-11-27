@@ -9,14 +9,16 @@ import { Event, EventsFilter } from '../../models';
   styleUrls: ['./my-events.component.css']
 })
 export class MyEventsComponent implements OnInit {
-  events: Event[] = [];
+  upcomingEvents: Event[] = [];
+  pastEvents: Event[] = [];
   isDropdownOpen = false;
 
   constructor(private router: Router, private route: ActivatedRoute, private eventService: EventService) { 
   }
 
   async ngOnInit() {
-    this.events = await this.eventService.listMyEvents(1);
+    this.filterbyRole(1);
+
   }  
 
   onCardClick(event: any) {
@@ -28,7 +30,12 @@ export class MyEventsComponent implements OnInit {
   }
 
   async filterbyRole(role: number) {
-      this.events = await this.eventService.listMyEvents(role);
+      const events = await this.eventService.listMyEvents(role);
+      this.upcomingEvents = events.filter(event => new Date(event.start_date) > new Date());
+      this.upcomingEvents.sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime());
+      this.pastEvents = events.filter(event => new Date(event.start_date) <= new Date());
+      this.pastEvents.sort((a, b) => new Date(b.start_date).getTime() - new Date(a.start_date).getTime());
+
   }
   
 

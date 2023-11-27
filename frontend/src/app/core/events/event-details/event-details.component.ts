@@ -18,7 +18,9 @@ export class EventDetailsComponent {
   isOrganiser = false;
   isSignedUp = false;
   isOver = false;
+  hasCommentsLeft = true;
   newComment: string = '';
+  editingIndex: number | null = null;
 
   constructor(private route: ActivatedRoute, private router: Router, private eventService: EventService, private authService: AccountService) { }
 
@@ -30,16 +32,25 @@ export class EventDetailsComponent {
         this.event = await this.eventService.getEventById(this.eventId);
         console.log(this.event);
         this.comments = await this.eventService.listComments(this.eventId);
+        if(this.authService.isLoggedIn()){
+          const userId = (await this.authService.getUserData()).id;
+          const userComment = this.comments.find(comment => comment.user == userId);
+          if(userComment){
+            this.hasCommentsLeft = false;
+          }
+        }
       }
-      if (!this.event.is_public && !this.authService.isLoggedIn()) {
+      if ((!this.event.is_public && !this.authService.isLoggedIn()) || this.event.remaining_slots == 0) {
         this.isSignUpDisabled = true;
       }
       this.isOrganiser = await this.eventService.isOrganiser(this.eventId);
-      console.log(this.isOrganiser);
+      console.log("isOrganiser:", this.isOrganiser);
       this.isSignedUp = await this.eventService.isSignedUp(this.eventId);
-      console.log(this.isSignedUp);
-      this.isOver = this.event.end_date < new Date();
-      console.log(this.isOver);
+      console.log("isSignedUp:", this.isSignedUp);
+      this.isOver = new Date(this.event.end_date) < new Date();
+      console.log(this.event.end_date);
+      console.log(new Date());
+      console.log("isOver:", this.isOver);
     });
   }
 
@@ -83,6 +94,23 @@ export class EventDetailsComponent {
         await this.eventService.addComment(eventComment);
         this.newComment = '';
       }
+    }
+    window.location.reload();
+  }
+
+  async canEditOrDeleteComment(comment: Comment): Promise<boolean> {
+    const userId = (await this.authService.getUserData()).id;
+    return comment.user === userId;
+  }
+
+  async editComment(index: number) {
+    // Check if the user is authorized to edit before allowing editing
+    const allowed = await this.canEditOrDeleteComment(this.comments[index]);
+    if (allowed) {
+      this.editingIndex = index;
+    } else {
+      // Handle unauthorized edit (e.g., show an alert, redirect, etc.)
+      console.error("Unauthorized edit attempt");
     }
   }
 }

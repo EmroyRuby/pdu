@@ -14,7 +14,6 @@ export class CreateEventComponent implements OnInit {
   categories: string[] = [];
   selectedCategories: string[] = [];
   newCategory: string = '';
-  addNewCategory: string = '';
 
   constructor(private fb: FormBuilder, private router: Router, private eventService: EventService) {
     this.createEventForm = this.fb.group({
@@ -23,7 +22,7 @@ export class CreateEventComponent implements OnInit {
       location: ['', Validators.required],
       is_public: [false, Validators.required],
       price: [null],
-      capacity: [null, Validators.required],
+      capacity: [null],
       registration_end_date: [null, Validators.required],
       start_date: [null, Validators.required],
       end_date: [null, Validators.required],
@@ -44,6 +43,7 @@ export class CreateEventComponent implements OnInit {
       newEvent.updated_at = new Date();
       newEvent.price = this.createEventForm.value.price.toString();
       console.log(newEvent);
+
       const eventId = await this.eventService.addEvent(newEvent);
       this.router.navigate(['/event'], {
         queryParams: { id: eventId }
@@ -55,7 +55,6 @@ export class CreateEventComponent implements OnInit {
     if (!this.isCategorySelected(category)) {
       this.selectedCategories.push(category);
     }
-    this.addNewCategory = '';
   }
   
   removeSelectedCategory(categoryToRemove: string) {
