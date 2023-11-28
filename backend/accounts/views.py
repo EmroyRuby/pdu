@@ -211,7 +211,8 @@ class DeleteAccount(APIView):
 
         # Ensure the user has permissions to delete the account
         if request.user == user or request.user.is_superuser:
-            user.delete()
+            user.is_active = False
+            user.save()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
         # In case the user does not have permission

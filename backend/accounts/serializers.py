@@ -1,7 +1,7 @@
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
-
+from events.tasks import send_verification_email
 from accounts.models import AppUser
 
 UserModel = AppUser
@@ -19,18 +19,34 @@ class UserRegisterSerializer(serializers.ModelSerializer):
                                              username=clean_data['username'])
 
 
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
 class UserLoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
 
     def validate(self, data):
-        user = authenticate(**data)
-        if user:
-            if not user.is_active:
-                raise serializers.ValidationError("User account is not active.")
-            else:
-                return user
+        # Try to get the user by email
+        try:
+            user = User.objects.get(email=data.get('email'))
+        except User.DoesNotExist:
+            user = None
+
+        # Check if the user exists and is inactive
+        if user and not user.is_active:
+            send_verification_email(user.email, user.verification_code, user_id=user.user_id)
+            raise serializers.ValidationError("User account is not active.")
+
+        # If the user exists and is active, authenticate with provided credentials
+        authenticated_user = authenticate(email=data.get('email'), password=data.get('password'))
+        if authenticated_user:
+            return authenticated_user
+
+        # If authentication fails
         raise serializers.ValidationError("Unable to log in with provided credentials.")
+
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -58,8 +74,6 @@ class UserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(self.errors)
 
         return super_valid and not bool(self._errors)
-
-
 
 
 class PasswordChangeSerializer(serializers.Serializer):
