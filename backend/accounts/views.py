@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from events import my_permissions
+from events.models import EventRegistration
 from events.tasks import send_verification_email
 from .models import AppUser
 from .serializers import UserRegisterSerializer, UserLoginSerializer, UserSerializer, PasswordChangeSerializer
@@ -211,6 +212,8 @@ class DeleteAccount(APIView):
 
         # Ensure the user has permissions to delete the account
         if request.user == user or request.user.is_superuser:
+            EventRegistration.objects.filter(user=user).update(is_registered=False)
+
             user.is_active = False
             user.save()
             return Response(status=status.HTTP_204_NO_CONTENT)
