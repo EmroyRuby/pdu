@@ -175,10 +175,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 MEDIA_URL = "/media/"
 
 # mailing_system system
-EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
-EMAIL_HOST_USER = 'dac7fcde1fd8a4'
-EMAIL_HOST_PASSWORD = '4f378c4524a426'
-EMAIL_PORT = '2525'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'ogshoes0@gmail.com'
+EMAIL_HOST_PASSWORD = 'klqviscojknfwthr'
+EMAIL_PORT = '587'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
 

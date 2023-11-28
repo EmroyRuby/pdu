@@ -1,3 +1,5 @@
+import uuid
+
 from django.contrib.auth import login, logout, update_session_auth_hash
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import permissions, status
@@ -6,6 +8,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from events import my_permissions
+from events.models import EventRegistration
+from events.tasks import send_verification_email
+from .models import AppUser
 from .serializers import UserRegisterSerializer, UserLoginSerializer, UserSerializer, PasswordChangeSerializer
 
 
@@ -31,10 +36,19 @@ class UserRegister(APIView):
         serializer = UserRegisterSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             user = serializer.save()
+
+            # Generate a verification code
+            verification_code = str(uuid.uuid4())
+            user.verification_code = verification_code
+            user.save()
+
+            # Send verification email
+            send_verification_email(user.email, verification_code, user_id=user.user_id)  # Implement this function
             # Include 'id' in the response data
             response_data = serializer.data
             response_data['id'] = user.user_id
             return Response(response_data, status=status.HTTP_201_CREATED)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -198,9 +212,39 @@ class DeleteAccount(APIView):
 
         # Ensure the user has permissions to delete the account
         if request.user == user or request.user.is_superuser:
-            user.delete()
+            EventRegistration.objects.filter(user=user).update(is_registered=False)
+
+            user.is_active = False
+            user.save()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
         # In case the user does not have permission
         return Response({"detail": "You do not have permission to delete this account."},
                         status=status.HTTP_403_FORBIDDEN)
+
+
+class VerifyUserEmail(APIView):
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = [SessionAuthentication]
+
+    def get(self, request, *args, **kwargs):
+        verification_code = request.query_params.get('code')
+        user_id = request.query_params.get('user_id')
+
+        if not verification_code or not user_id:
+            return Response({"detail": "Missing verification code or user ID."}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            user = AppUser.objects.get(
+                verification_code=verification_code,
+                user_id=user_id,
+                is_active=False
+            )
+        except AppUser.DoesNotExist:
+            return Response({"detail": "Invalid verification code or user ID, or already active."},
+                            status=status.HTTP_404_NOT_FOUND)
+
+        user.is_active = True
+        user.save()
+
+        return Response({"message": "Email verified successfully. Your account is now active."},
+                        status=status.HTTP_200_OK)
