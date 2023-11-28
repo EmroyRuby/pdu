@@ -14,6 +14,7 @@ export class CreateEventComponent implements OnInit {
   categories: string[] = [];
   selectedCategories: string[] = [];
   newCategory: string = '';
+  modalText: string = '123';
 
   constructor(private fb: FormBuilder, private router: Router, private eventService: EventService) {
     this.createEventForm = this.fb.group({
@@ -36,17 +37,33 @@ export class CreateEventComponent implements OnInit {
 
   async publish() {
     const formData = this.createEventForm.value;
-    if (this.createEventForm.valid) {
-      const newEvent = this.createEventForm.value as Event;
-      newEvent.categories = this.selectedCategories;
-      newEvent.created_at = new Date();
-      newEvent.updated_at = new Date();
-      newEvent.price = this.createEventForm.value.price.toString();
-      console.log(newEvent);
-      const eventId = await this.eventService.addEvent(newEvent);
-      this.router.navigate(['/event'], {
-        queryParams: { id: eventId }
-      });
+    try{
+      if (this.createEventForm.valid) {
+        const newEvent = this.createEventForm.value as Event;
+        newEvent.categories = this.selectedCategories;
+        newEvent.created_at = new Date();
+        newEvent.updated_at = new Date();
+        newEvent.price = this.createEventForm.value.price.toString();
+        console.log(newEvent);
+        const eventId = await this.eventService.addEvent(newEvent);
+        this.router.navigate(['/event'], {
+          queryParams: { id: eventId }
+        });
+      }
+      else{
+        //TODO: find a way to return specific info about which fields in the form did not pass the validation
+        throw new Error("something went bad");
+      }
+    }
+    catch (e: any){
+      if (e instanceof Error){
+        this.modalText = e.message;
+      }
+      else{
+        //TODO: add aption to display error messages from HTML errors
+        this.modalText = 'Something went wrong, please check the required fields and try again';
+      }
+      document.getElementById("openModal1")?.click();
     }
   }
 
