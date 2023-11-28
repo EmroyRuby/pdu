@@ -4,7 +4,7 @@
       <div class="card">
         <div class="card-header fs-4">User Profile</div>
         <div class="card-body">
-          <form [formGroup]="editEmailForm">
+          <form [formGroup]="editEmailForm" (ngSubmit)="editEmail()">
             <div class="form-group">
               <label for="newEmail">New email:</label>
               <input formControlName="newEmail" type="text" id="newEmail" class="form-control">
@@ -19,23 +19,6 @@
               <button type="submit" class="btn btn-primary mb-3 me-md-2" [disabled]="editEmailForm.invalid">Edit Data</button>
             </div>
           </form>
-          <div class="modal fade" id="emailError" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h1 class="modal-title fs-5" id="staticBackdropLabel">Info</h1>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    something something
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
-                  <button type="button" class="btn btn-primary" data-bs-dismiss="modal" (click)="editEmail()">Yes</button>
-                </div>
-              </div>
-            </div>
-          </div>
           <form [formGroup]="changePasswordForm" (ngSubmit)="changePassword()">
             <div class="form-group mt-2">
               <label for="oldPassword">Current password:</label>
@@ -53,6 +36,23 @@
               <button type="submit" class="btn btn-primary mb-3 me-md-2" [disabled]="changePasswordForm.invalid">Edit Data</button>
             </div>
           </form>
+          <button id="openModal" [hidden]="true" data-bs-toggle="modal" data-bs-target="#errorModal">open modal</button>
+          <div class="modal fade" id="errorModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h1 class="modal-title fs-5" id="staticBackdropLabel">Info</h1>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <pre>{{modalText}}</pre>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ok</button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
