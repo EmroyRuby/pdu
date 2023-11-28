@@ -60,7 +60,7 @@ urlpatterns = [
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('api/accounts/', include('accounts.urls')),
     path('api/register-guest/', GuestRegistrationAPIView.as_view(), name='register-guest'),
-    path('verify_registration', VerifyGuestRegistration.as_view(), name='register-guest'),
+    path('verify-guest-registration', VerifyGuestRegistration.as_view(), name='register-guest'),
     path('api/user-recommendation', UserRecommendation.as_view(), name='user-recommendation'),
 
 ]

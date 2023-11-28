@@ -26,7 +26,10 @@ class UserLoginSerializer(serializers.Serializer):
     def validate(self, data):
         user = authenticate(**data)
         if user:
-            return user
+            if not user.is_active:
+                raise serializers.ValidationError("User account is not active.")
+            else:
+                return user
         raise serializers.ValidationError("Unable to log in with provided credentials.")
 
 
