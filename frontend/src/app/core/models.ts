@@ -42,5 +42,8 @@
     categories: string[] | null,
     accessibility: string | null,
     start_date: Date | null,
-    end_date: Date | null
+    end_date: Date | null,
+    only_available: boolean | null,
+    price_less_than: string | null,
+    price_greater_than: string | null
   }

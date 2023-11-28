@@ -114,7 +114,10 @@ export class AccountService {
     try {
       const userData = await firstValueFrom(this.http.put<User>(`http://127.0.0.1:8000/api/accounts/edit`, 
         {email: email}, {
-        withCredentials: true
+        withCredentials: true,
+        headers: {
+          'X-CSRFToken': this.getCsrfToken(),
+        },
       }));
       console.log("Updated user with id: ", userData.id, ", new data: ", userData);
     } catch (error) {
@@ -127,7 +130,10 @@ export class AccountService {
     try {
       await firstValueFrom(this.http.post(`http://127.0.0.1:8000/api/accounts/password-change`, 
         {old_password: old_password, new_password: new_password}, {
-        withCredentials: true
+        withCredentials: true,
+        headers: {
+          'X-CSRFToken': this.getCsrfToken(),
+        },
       }));
       console.log("Changed password");
     } catch (error) {
@@ -136,14 +142,19 @@ export class AccountService {
   }
 
   // Delete the authenticated user's account
-  async deleteUser(): Promise<void> {
+  async deleteUser(password: string): Promise<void> {
     try {
-      await firstValueFrom(this.http.post<User>(`http://127.0.0.1:8000/api/accounts/delete-account`, {}, {
-        withCredentials: true
+      await firstValueFrom(this.http.post<User>(`http://127.0.0.1:8000/api/accounts/delete-account`, 
+        {password: password}, {
+        withCredentials: true,
+        headers: {
+          'X-CSRFToken': this.getCsrfToken(),
+        },
       }));
       this.isAuthenticated = false;
       this.userIdSubject.next(null);
       localStorage.removeItem('userId');
+      this.logout();
       console.log("Account deletion successful");
     } catch (error) {
       console.error("Error during deleteUser:", error);
