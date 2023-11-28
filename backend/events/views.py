@@ -251,7 +251,7 @@ class EventRegistrationViewSet(BaseViewSet):
 
     def destroy(self, request, *args, **kwargs):
         try:
-            registration = EventRegistration.objects.get(pk=kwargs['pk'])
+            registration = self.get_object()
         except EventRegistration.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
