@@ -122,6 +122,7 @@ export class AccountService {
       console.log("Updated user with id: ", userData.id, ", new data: ", userData);
     } catch (error) {
       console.error("Error during update:", error);
+      throw error;
     }
   }
 
@@ -138,6 +139,7 @@ export class AccountService {
       console.log("Changed password");
     } catch (error) {
       console.error("Error during password change:", error);
+      throw error;
     }
   }
 

@@ -14,6 +14,8 @@ export class CreateEventComponent implements OnInit {
   categories: string[] = [];
   selectedCategories: string[] = [];
   newCategory: string = '';
+  modalText: string = '';
+  errors = "";
 
   constructor(private fb: FormBuilder, private router: Router, private eventService: EventService) {
     this.createEventForm = this.fb.group({
@@ -36,18 +38,43 @@ export class CreateEventComponent implements OnInit {
 
   async publish() {
     const formData = this.createEventForm.value;
-    if (this.createEventForm.valid) {
-      const newEvent = this.createEventForm.value as Event;
-      newEvent.categories = this.selectedCategories;
-      newEvent.created_at = new Date();
-      newEvent.updated_at = new Date();
-      newEvent.price = this.createEventForm.value.price.toString();
-      console.log(newEvent);
-
-      const eventId = await this.eventService.addEvent(newEvent);
-      this.router.navigate(['/event'], {
-        queryParams: { id: eventId }
-      });
+    try{
+      if (this.createEventForm.valid) {
+        const newEvent = this.createEventForm.value as Event;
+        newEvent.categories = this.selectedCategories;
+        newEvent.created_at = new Date();
+        newEvent.updated_at = new Date();
+        newEvent.price = this.createEventForm.value.price.toString();
+        console.log(newEvent);
+        const eventId = await this.eventService.addEvent(newEvent);
+        this.router.navigate(['/event'], {
+          queryParams: { id: eventId }
+        });
+      }
+      else{
+        this.errors = "";
+        Object.keys(this.createEventForm.controls).forEach(controlName => {
+          const control = this.createEventForm.get(controlName);
+          if (control && control.invalid){
+            this.errors += controlName + " is required\n"
+          }
+        });
+        throw new Error(this.errors);
+      }
+    }
+    catch (e: any){
+      if (e instanceof Error){
+        this.modalText = e.message;
+      }
+      else{
+        this.modalText = '';
+        e.error.forEach((element: any) => {
+          element.forEach((error_message: any) =>{
+            this.modalText += error_message + '\n';
+          });
+        });
+      }
+      document.getElementById("openModal1")?.click();
     }
   }
 
