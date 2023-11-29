@@ -301,6 +301,15 @@ class CategoryViewSet(BaseViewSet):
         'name': 'name__iexact'
     }
 
+    def create(self, request, *args, **kwargs):
+        name = request.data.get('name')
+        if Category.objects.filter(name=name).exists():
+            return Response({"detail": "This category already exist"}, status=status.HTTP_409_CONFLICT)
+        else:
+            category = Category.objects.create(name=name)
+            serializer = CategorySerializer(category)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 
 class CommentViewSet(BaseViewSet):
     permission_classes = [CanViewAndPostOnly]
