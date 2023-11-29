@@ -10,6 +10,7 @@ import { Event, EventsFilter } from '../../models';
 })
 export class EventsCatalogComponent implements OnInit {
   events: Event[] = [];
+  recommended: Event[] = [];
   categories: string[] = [];
   accessibility: any[] = ['All', 'Public', 'Private'];
   filters: EventsFilter = {
@@ -33,6 +34,7 @@ export class EventsCatalogComponent implements OnInit {
     this.categories = await this.eventService.getCategories();
     this.filters = this.eventService.filters;
     this.events = await this.eventService.listEvents();
+    this.recommended = await this.eventService.listRecommended();
   }  
 
   onCardClick(event: any) {
@@ -46,6 +48,7 @@ export class EventsCatalogComponent implements OnInit {
   async applyFilter() {
     this.eventService.filters = this.filters;
     this.events = await this.eventService.listEvents();
+    this.recommended = await this.eventService.listRecommended();
     console.log(this.events);
   }
 

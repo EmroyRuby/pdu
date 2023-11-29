@@ -23,7 +23,7 @@ export class CreateEventComponent implements OnInit {
       description: ['', Validators.required],
       location: ['', Validators.required],
       is_public: [false, Validators.required],
-      price: [null],
+      price: [null, Validators.required],
       capacity: [null],
       registration_end_date: [null, Validators.required],
       start_date: [null, Validators.required],

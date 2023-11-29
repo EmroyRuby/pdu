@@ -126,6 +126,48 @@
     </div>
   </div>  
 
+  <!-- Recommended -->
+  <div class="row">
+    <div class="col-md-6" *ngFor="let event of recommended">
+      <div class="card mb-4" (click)="onCardClick(event)">
+        <img src="{{ event.photo }}" class="card-img-top" alt="{{ event.title }}">
+        <div class="card-body">
+          <h5 class="card-title"><i class="fa fa-star" aria-hidden="true"></i> {{ event.title }}</h5>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="card-text mb-2">
+                <i class="fa fa-calendar" style="width: 20px;"></i>
+                {{ event.start_date | date:'dd MMM yyyy, HH:mm' }}
+              </div>
+              <div class="card-text mb-2">
+                <i class="fa fa-location-arrow" style="width: 20px;"></i>
+                {{ event.location }}
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card-text mb-2" *ngIf="event.price !== undefined && event.price !== null">
+                <i class="fa fa-money" style="width: 20px;"></i>
+                {{ event.price }}
+              </div>
+              <div class="card-text mb-2">
+                <i class="fa" [ngClass]="{'fa-lock': !event.is_public, 'fa-unlock-alt': event.is_public}" style="width: 20px;"></i>
+                {{ event.is_public ? 'Public' : 'Private' }}
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="card-text mb-2">
+                <i class="fa fa-tag" style="width: 20px;"></i>
+                {{ event.categories?.join(', ') }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Event Cards -->
   <div class="row">
     <div class="col-md-6" *ngFor="let event of events">

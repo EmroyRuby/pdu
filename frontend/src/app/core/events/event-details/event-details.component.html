@@ -38,8 +38,8 @@
                 </li>
             </ul>
             <div class="mx-3">
-                <button class="btn btn-primary mb-3 me-2 me-md-2" *ngIf="!isSignedUp" (click)="signUp()" [disabled]="isSignUpDisabled">Sign up</button>
-                <button class="btn btn-primary mb-3 me-2 me-md-2" *ngIf="isSignedUp" data-bs-toggle="modal" data-bs-target="#signOutModal" [disabled]="isSignUpDisabled">Sign out</button>
+                <button class="btn btn-primary mb-3 me-2 me-md-2" *ngIf="!isSignedUp && !isOver" (click)="signUp()" [disabled]="isSignUpDisabled">Sign up</button>
+                <button class="btn btn-primary mb-3 me-2 me-md-2" *ngIf="isSignedUp && !isOver" data-bs-toggle="modal" data-bs-target="#signOutModal" [disabled]="isSignUpDisabled">Sign out</button>
                 <div class="modal fade" id="signOutModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">
                       <div class="modal-content">
@@ -57,8 +57,8 @@
                       </div>
                     </div>
                   </div>
-                <button class="btn btn-primary mb-3 me-2 me-md-2" *ngIf="isOrganiser" (click)="edit()" [disabled]="isSignUpDisabled">Edit</button>
-                <button class="btn btn-danger mb-3 me-2 me-md-2" *ngIf="isOrganiser" data-bs-toggle="modal" data-bs-target="#deleteModal" [disabled]="isSignUpDisabled">Delete</button>
+                <button class="btn btn-primary mb-3 me-2 me-md-2" *ngIf="isOrganiser && !isOver" (click)="edit()" [disabled]="isSignUpDisabled">Edit</button>
+                <button class="btn btn-danger mb-3 me-2 me-md-2" *ngIf="isOrganiser && !isOver" data-bs-toggle="modal" data-bs-target="#deleteModal" [disabled]="isSignUpDisabled">Delete</button>
                 <div class="modal fade" id="deleteModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">
                       <div class="modal-content">
@@ -103,7 +103,7 @@
         </div>
 
         <!-- Add Comment Form -->
-        <div class="mt-4" *ngIf="isSignedUp && isOver && hasCommentsLeft">
+        <div class="mt-4" *ngIf="isSignedUp">
           <h5>Add a Comment</h5>
           <div class="d-flex align-items-center">
               <div class="me-2">
