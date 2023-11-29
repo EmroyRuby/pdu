@@ -29,8 +29,11 @@ class EventSerializer(serializers.ModelSerializer):
         return user.email
 
     def get_remaining_slots(self, obj):
-        registrations = EventRegistration.objects.filter(event_id=obj.id, is_registered=True)
-        return obj.capacity - len(registrations)
+        if obj.capacity is not None:
+            registrations = EventRegistration.objects.filter(event_id=obj.id, is_registered=True)
+            return obj.capacity - len(registrations)
+        else:
+            return None
 
 
 class EventNotificationSerializer(serializers.ModelSerializer):
