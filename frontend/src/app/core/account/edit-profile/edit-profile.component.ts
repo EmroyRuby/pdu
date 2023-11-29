@@ -12,6 +12,7 @@ export class EditProfileComponent implements OnInit{
   editEmailForm: FormGroup;
   changePasswordForm: FormGroup;
   loading = false;
+  modalText: string = '';
 
   constructor(
     private fb: FormBuilder, 
@@ -30,21 +31,36 @@ export class EditProfileComponent implements OnInit{
   ngOnInit() {}
 
   async editEmail() {
-    if (this.editEmailForm.valid) {
+    try{
       await this.accountService.updateUser(this.editEmailForm.value.newEmail);
     }
-    else{
-      console.log("incorrect email was provided: " + this.editEmailForm.value.newEmail);
+    catch(e: any){
+      console.log(e.error);
+      this.modalText = e.error.email[0];
+      document.getElementById("openModal")?.click();
     }
   }
 
   async changePassword() {
-    if (this.changePasswordForm.valid) {
+    try{
       await this.accountService.changePassword(this.changePasswordForm.value.oldPassword, this.changePasswordForm.value.newPassword);
     }
-    else{
-      console.log("incorrect old password: " + this.changePasswordForm.value.oldPassword);
-      console.log("incorrect new password: " + this.changePasswordForm.value.newPassword);
+    catch(e: any){
+      console.log(e.error);
+      this.modalText = '';
+      if (e.error.new_password !== undefined){
+        this.modalText += "New password error:\n";
+        e.error.new_password.forEach((element: any) => {
+          this.modalText += String(element) + '\n';
+        });
+      }
+      else if (e.error.old_password !== undefined){
+        this.modalText += "Current password error:\n";
+        e.error.old_password.forEach((element: any) => {
+          this.modalText += String(element) + '\n';
+        });
+      }
+      document.getElementById("openModal")?.click();
     }
   }
 }

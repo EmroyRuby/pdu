@@ -16,6 +16,8 @@ export class EditEventComponent implements OnInit {
   newCategory: string = '';
   eventId!: number;
   event!: Event;
+  modalText = '';
+  errors = '';
 
   constructor(private fb: FormBuilder, private route: ActivatedRoute, private router: Router, private eventService: EventService) {
     this.editEventForm = this.fb.group({
@@ -72,15 +74,41 @@ export class EditEventComponent implements OnInit {
 
   async publish() {
     const formData = this.editEventForm.value;
-    if (this.editEventForm.valid) {
-      let newEvent = this.editEventForm.value as Event;
-      newEvent.categories = this.selectedCategories;
-      newEvent.updated_at = new Date();
-      newEvent.price = this.editEventForm.value.price.toString();
-      await this.eventService.editEvent(this.eventId, newEvent);
-      this.router.navigate(['/event'], {
-        queryParams: { id: this.eventId }
-      });
+    try{
+      if (this.editEventForm.valid) {
+        let newEvent = this.editEventForm.value as Event;
+        newEvent.categories = this.selectedCategories;
+        newEvent.updated_at = new Date();
+        newEvent.price = this.editEventForm.value.price.toString();
+        await this.eventService.editEvent(this.eventId, newEvent);
+        this.router.navigate(['/event'], {
+          queryParams: { id: this.eventId }
+        });
+      }
+      else{
+        this.errors = "";
+        Object.keys(this.editEventForm.controls).forEach(controlName => {
+          const control = this.editEventForm.get(controlName);
+          if (control && control.invalid){
+            this.errors += controlName + " is required\n"
+          }
+        });
+        throw new Error(this.errors);
+      }
+    }
+    catch (e: any){
+      if (e instanceof Error){
+        this.modalText = e.message;
+      }
+      else{
+        this.modalText = '';
+        e.error.forEach((element: any) => {
+          element.forEach((error_message: any) =>{
+            this.modalText += error_message + '\n';
+          });
+        });
+      }
+      document.getElementById("openModal1")?.click();
     }
   }
 
