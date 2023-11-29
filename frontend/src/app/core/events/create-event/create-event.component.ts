@@ -14,7 +14,8 @@ export class CreateEventComponent implements OnInit {
   categories: string[] = [];
   selectedCategories: string[] = [];
   newCategory: string = '';
-  modalText: string = '123';
+  modalText: string = '';
+  errors = "";
 
   constructor(private fb: FormBuilder, private router: Router, private eventService: EventService) {
     this.createEventForm = this.fb.group({
@@ -22,7 +23,7 @@ export class CreateEventComponent implements OnInit {
       description: ['', Validators.required],
       location: ['', Validators.required],
       is_public: [false, Validators.required],
-      price: [null],
+      price: [null, Validators.required],
       capacity: [null, Validators.required],
       registration_end_date: [null, Validators.required],
       start_date: [null, Validators.required],
@@ -51,8 +52,14 @@ export class CreateEventComponent implements OnInit {
         });
       }
       else{
-        //TODO: find a way to return specific info about which fields in the form did not pass the validation
-        throw new Error("something went bad");
+        this.errors = "";
+        Object.keys(this.createEventForm.controls).forEach(controlName => {
+          const control = this.createEventForm.get(controlName);
+          if (control && control.invalid){
+            this.errors += controlName + " is required\n"
+          }
+        });
+        throw new Error(this.errors);
       }
     }
     catch (e: any){
@@ -60,8 +67,12 @@ export class CreateEventComponent implements OnInit {
         this.modalText = e.message;
       }
       else{
-        //TODO: add aption to display error messages from HTML errors
-        this.modalText = 'Something went wrong, please check the required fields and try again';
+        this.modalText = '';
+        e.error.forEach((element: any) => {
+          element.forEach((error_message: any) =>{
+            this.modalText += error_message + '\n';
+          });
+        });
       }
       document.getElementById("openModal1")?.click();
     }
