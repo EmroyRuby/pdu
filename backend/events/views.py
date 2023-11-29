@@ -251,7 +251,7 @@ class EventRegistrationViewSet(BaseViewSet):
 
     def destroy(self, request, *args, **kwargs):
         try:
-            registration = EventRegistration.objects.get(pk=kwargs['pk'])
+            registration = self.get_object()
         except EventRegistration.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -303,7 +303,7 @@ class CategoryViewSet(BaseViewSet):
 
 
 class CommentViewSet(BaseViewSet):
-    permission_classes = [IsOwnerOrReadOnlyOrSuperuser]
+    permission_classes = [CanViewAndPostOnly]
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     filter_params = {
@@ -325,20 +325,20 @@ class CommentViewSet(BaseViewSet):
             # Ensure the event exists
             event = Event.objects.get(pk=event_id)
 
-            # Check if the event has already ended
-            if timezone.now() <= event.end_date:
-                return Response({"detail": "Can't comment on an event that hasn't ended."},
-                                status=status.HTTP_400_BAD_REQUEST)
-
-            # Check if the user is registered for the event
-            if not EventRegistration.objects.filter(user=request.user, event=event, is_registered=True).exists():
-                return Response({"detail": "You must be registered for the event to comment."},
-                                status=status.HTTP_403_FORBIDDEN)
-
-            # Check if the user has already commented on the event
-            if Comment.objects.filter(user=request.user, event=event).exists():
-                return Response({"detail": "You can only comment once on an event."},
-                                status=status.HTTP_400_BAD_REQUEST)
+            # # Check if the event has already ended
+            # if timezone.now() <= event.end_date:
+            #     return Response({"detail": "Can't comment on an event that hasn't ended."},
+            #                     status=status.HTTP_400_BAD_REQUEST)
+            #
+            # # Check if the user is registered for the event
+            # if not EventRegistration.objects.filter(user=request.user, event=event, is_registered=True).exists():
+            #     return Response({"detail": "You must be registered for the event to comment."},
+            #                     status=status.HTTP_403_FORBIDDEN)
+            #
+            # # Check if the user has already commented on the event
+            # if Comment.objects.filter(user=request.user, event=event).exists():
+            #     return Response({"detail": "You can only comment once on an event."},
+            #                     status=status.HTTP_400_BAD_REQUEST)
 
             # Create the comment
             comment_serializer = self.get_serializer(data=request.data)

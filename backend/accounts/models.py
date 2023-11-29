@@ -51,6 +51,8 @@ class AppUser(AbstractBaseUser, PermissionsMixin):
         help_text=('Specific permissions for this user.'),
     )
     is_staff = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=False)
+    verification_code = models.CharField(max_length=100, blank=True, null=True)
     user_id = models.AutoField(primary_key=True)
     email = models.EmailField(max_length=255, unique=True)
     username = models.CharField(max_length=50)
