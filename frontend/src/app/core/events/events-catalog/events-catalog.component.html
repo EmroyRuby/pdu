@@ -129,7 +129,8 @@
   <!-- Recommended -->
   <div class="row">
     <div class="col-md-6" *ngFor="let event of recommended">
-      <div class="card mb-4" (click)="onCardClick(event)">
+      <div class="d-flex h-100">
+      <div class="card mb-4 flex-fill" (click)="onCardClick(event)">
         <img src="{{ event.photo }}" class="card-img-top" alt="{{ event.title }}">
         <div class="card-body">
           <h5 class="card-title"><i class="fa fa-star" aria-hidden="true"></i> {{ event.title }}</h5>
@@ -165,13 +166,15 @@
           </div>
         </div>
       </div>
+      </div>
     </div>
   </div>
 
   <!-- Event Cards -->
   <div class="row">
     <div class="col-md-6" *ngFor="let event of events">
-      <div class="card mb-4" (click)="onCardClick(event)">
+      <div class="d-flex h-100">
+      <div class="card mb-4 flex-fill" (click)="onCardClick(event)">
         <img src="{{ event.photo }}" class="card-img-top" alt="{{ event.title }}">
         <div class="card-body">
           <h5 class="card-title">{{ event.title }}</h5>
@@ -206,6 +209,7 @@
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   </div>

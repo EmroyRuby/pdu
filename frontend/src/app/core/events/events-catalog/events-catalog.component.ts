@@ -71,9 +71,6 @@ export class EventsCatalogComponent implements OnInit {
 
   filterByDates(start_date: string, end_date: string) {
     if (start_date) {
-      if (new Date(start_date) < new Date()) {
-        start_date = new Date().toISOString();
-      }
       this.filters.start_date = new Date(start_date);
     }
     if (end_date) {

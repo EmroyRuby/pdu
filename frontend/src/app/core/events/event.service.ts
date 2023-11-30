@@ -33,7 +33,7 @@ export class EventService {
     if(!this.accountService.isLoggedIn()){
       return [];
     }
-    return await this.listEventsAndRecommended(`http://127.0.0.1:8000/api/user-recommendation/`);
+    return await this.listEventsAndRecommended(`http://127.0.0.1:8000/api/user-recommendation`);
   }
   // Retrieve a list of events based on applied filters
   async listEventsAndRecommended(url: string): Promise<Event[]> {
@@ -84,6 +84,7 @@ export class EventService {
           })
         )
       );
+      events.sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime());
       this.events = events;
       console.log('Events retrived successfully');
       return this.events;
