@@ -12,34 +12,74 @@
           <label class="btn btn-light" for="organiser">Organiser</label>
         </div>
      </div>
-    <!-- Event Cards List -->
+    <!-- Upcoming Events Section -->
+    <div class="d-flex">
+        <h4>Upcoming Events:</h4>
+    </div>
     <div class="row">
-        <div class="col-md-12" *ngFor="let event of events">
-        <div class="card mb-4" (click)="onCardClick(event)">
-            <div class="row no-gutters">
-            <div class="col-md-4">
-                <img src="{{ event.photo }}" class="card-img" alt="{{ event.title }}">
-            </div>
-            <div class="col-md-8">
-                <div class="card-body">
-                    <h5 class="card-title">{{ event.title }}</h5>
-                    <div class="card-text mb-2">
-                        <i class="fa fa-calendar" style="width: 20px;"></i>
-                        {{ event.start_date | date: 'dd MMM yyyy, HH:mm' }}
+        <div *ngIf="upcomingEvents.length === 0">
+            You have no upcoming events
+        </div>
+        <div class="col-md-12" *ngFor="let event of upcomingEvents">
+            <div class="card mb-4" (click)="onCardClick(event)">
+                <div class="row no-gutters">
+                    <div class="col-md-4">
+                        <img src="{{ event.photo }}" class="card-img" alt="{{ event.title }}">
                     </div>
-                    <div class="card-text mb-2">
-                        <i class="fa fa-location-arrow" style="width: 20px;"></i>
-                        {{ event.location }}
-                    </div>
-                    <div class="card-text mb-2">
-                        <i class="fa fa-tag" style="width: 20px;"></i>
-                        {{ event.categories?.join(', ') }}
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ event.title }}</h5>
+                            <div class="card-text mb-2">
+                                <i class="fa fa-calendar" style="width: 20px;"></i>
+                                {{ event.start_date | date: 'dd MMM yyyy, HH:mm' }}
+                            </div>
+                            <div class="card-text mb-2">
+                                <i class="fa fa-location-arrow" style="width: 20px;"></i>
+                                {{ event.location }}
+                            </div>
+                            <div class="card-text mb-2">
+                                <i class="fa fa-tag" style="width: 20px;"></i>
+                                {{ event.categories?.join(', ') }}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            </div>
-        </div>
         </div>
     </div>
-  
+    <!-- Past Events Section -->
+    <div class="d-flex mt-4">
+    <h4>Past Events:</h4>
+    </div>
+    <div class="row">
+        <div *ngIf="pastEvents.length === 0">
+            You have no past events
+        </div>
+        <div class="col-md-12" *ngFor="let event of pastEvents">
+            <div class="card mb-4" (click)="onCardClick(event)">
+                <div class="row no-gutters">
+                    <div class="col-md-4">
+                        <img src="{{ event.photo }}" class="card-img" alt="{{ event.title }}">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ event.title }}</h5>
+                            <div class="card-text mb-2">
+                                <i class="fa fa-calendar" style="width: 20px;"></i>
+                                {{ event.start_date | date: 'dd MMM yyyy, HH:mm' }}
+                            </div>
+                            <div class="card-text mb-2">
+                                <i class="fa fa-location-arrow" style="width: 20px;"></i>
+                                {{ event.location }}
+                            </div>
+                            <div class="card-text mb-2">
+                                <i class="fa fa-tag" style="width: 20px;"></i>
+                                {{ event.categories?.join(', ') }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
   </div>

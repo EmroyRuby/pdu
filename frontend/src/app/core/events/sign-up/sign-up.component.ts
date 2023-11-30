@@ -45,7 +45,8 @@ export class SignUpComponent {
   }
 
   signUp() {
-    this.eventService.signUp(this.eventId);
+    // CHECK
+    this.eventService.signUp(this.eventId, this.signUpForm.value.email);
     this.goBackToEvent();
   }
 }

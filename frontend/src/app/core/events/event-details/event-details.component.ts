@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { EventService } from '../event.service';
 import { AccountService } from '../../account/account.service';
-import { Event } from '../../models';
+import { Event, Comment } from '../../models';
 
 @Component({
   selector: 'app-event-details',
@@ -13,9 +13,13 @@ import { Event } from '../../models';
 export class EventDetailsComponent {
   eventId!: number;
   event!: Event;
+  comments!: Comment[];
   isSignUpDisabled = false;
   isOrganiser = false;
   isSignedUp = false;
+  isOver = false;
+  newComment: string = '';
+  editingIndex: number | null = null;
 
   constructor(private route: ActivatedRoute, private router: Router, private eventService: EventService, private authService: AccountService) { }
 
@@ -26,14 +30,19 @@ export class EventDetailsComponent {
         this.eventId = parseInt(eventId, 10)
         this.event = await this.eventService.getEventById(this.eventId);
         console.log(this.event);
+        this.comments = await this.eventService.listComments(this.eventId);
       }
-      if (!this.event.is_public && !this.authService.isLoggedIn()) {
+      if ((!this.event.is_public && !this.authService.isLoggedIn()) || this.event.remaining_slots == 0) {
         this.isSignUpDisabled = true;
       }
       this.isOrganiser = await this.eventService.isOrganiser(this.eventId);
-      console.log(this.isOrganiser);
+      console.log("isOrganiser:", this.isOrganiser);
       this.isSignedUp = await this.eventService.isSignedUp(this.eventId);
-      console.log(this.isSignedUp);
+      console.log("isSignedUp:", this.isSignedUp);
+      this.isOver = new Date(this.event.end_date) < new Date();
+      console.log(this.event.end_date);
+      console.log(new Date());
+      console.log("isOver:", this.isOver);
     });
   }
 
@@ -50,7 +59,7 @@ export class EventDetailsComponent {
 
   async signOut() {
     await this.eventService.signOut(this.eventId);
-    // window.location.reload();
+    window.location.reload();
   }
 
   edit() {
@@ -62,6 +71,22 @@ export class EventDetailsComponent {
 
   async delete() {
     await this.eventService.deleteEvent(this.eventId);
-    // this.goBack();
+    this.goBack();
+  }
+
+  async addComment() {
+    if (this.newComment.trim() !== '' && this.isSignedUp) {
+      const userId = (await this.authService.getUserData()).id;
+      if(userId){
+        const eventComment: Comment = {
+          content: this.newComment,
+          user: userId,
+          event: this.eventId
+        }
+        await this.eventService.addComment(eventComment);
+        this.newComment = '';
+      }
+    }
+    window.location.reload();
   }
 }

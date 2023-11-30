@@ -27,7 +27,7 @@
     user?: number;
     user_email?: string;
     categories?: string[];
-    photo?: string;
+    photo?: File;
   }
   
   export interface User {
@@ -46,4 +46,13 @@
     only_available: boolean | null,
     price_less_than: string | null,
     price_greater_than: string | null
+  }
+
+  export interface Comment {
+    id?: number;
+    content: string;
+    created_at?: Date;
+    updated_at?: Date;
+    user: number;
+    event: number;
   }
