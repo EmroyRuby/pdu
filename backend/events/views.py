@@ -443,6 +443,18 @@ class VerifyGuestRegistration(APIView):
 class UserRecommendation(APIView):
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [SessionAuthentication]
+    filter_params = {
+        'id': 'id',
+        'title': 'title__icontains',
+        'location': 'location__icontains',
+        'is_public': 'is_public',
+        'category': 'categories__name__in',
+        'start_date': 'start_date__gte',
+        'end_date': 'end_date__lte',
+        'price_gte': 'price__gte',
+        'price_lte': 'price__lte',
+        'user': 'user'
+    }
 
     def get(self, request, *args, **kwargs):
         try:
@@ -453,6 +465,9 @@ class UserRecommendation(APIView):
             # Fetch the recommended events from the database
             recommended_events = Event.objects.filter(id__in=recommended_events_id)
 
+            # Apply additional filtering based on query parameters
+            recommended_events = self.apply_filtering(recommended_events, request.query_params)
+
             # Serialize the event data
             serializer = EventSerializer(recommended_events, many=True)
             return Response(serializer.data)
@@ -461,7 +476,17 @@ class UserRecommendation(APIView):
             # Handle the case where the Event does not exist
             return Response({'error': 'Events not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-        # except Exception as e:
-        #     # Handle any other exceptions
-        #     return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    def apply_filtering(self, queryset, query_params):
+        if all(query_params.get(param) is None for param in self.filter_params):
+            return queryset
+
+        for param, lookup in self.filter_params.items():
+            value = query_params.get(param)
+            if value:
+                if param == 'category':  # Special handling for categories
+                    value = value.split(',')
+                elif '_date' in param:  # for date fields
+                    value = date.fromisoformat(value)
+                queryset = queryset.filter(**{lookup: value})
+        return queryset
 
