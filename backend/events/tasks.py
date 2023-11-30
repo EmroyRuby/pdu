@@ -26,7 +26,7 @@ def send_event_notifications():
                 is_registered=True
             ).select_related('user')
 
-            guest_emails = GuestRegistration.objects.filter(event=event, verified=True).values_list('email', flat=True)
+            guest_emails = list(GuestRegistration.objects.filter(event=event, verified=True).values_list('email', flat=True))
 
             emails = [registration.user.email for registration in registered_users]
             emails = emails + guest_emails
