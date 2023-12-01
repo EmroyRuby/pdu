@@ -18,6 +18,7 @@ export class EditEventComponent implements OnInit {
   event!: Event;
   modalText = '';
   errors = '';
+  selectedFile = undefined;
 
   constructor(private fb: FormBuilder, private route: ActivatedRoute, private router: Router, private eventService: EventService) {
     this.editEventForm = this.fb.group({
@@ -79,6 +80,7 @@ export class EditEventComponent implements OnInit {
         newEvent.categories = this.selectedCategories;
         newEvent.updated_at = new Date();
         newEvent.price = this.editEventForm.value.price.toString();
+        newEvent.photo = this.selectedFile;
         await this.eventService.editEvent(this.eventId, newEvent);
         this.router.navigate(['/event'], {
           queryParams: { id: this.eventId }
@@ -109,6 +111,11 @@ export class EditEventComponent implements OnInit {
       }
       document.getElementById("openModal1")?.click();
     }
+  }
+
+  onFileSelected(event: any){
+    this.selectedFile = event.target.files[0];
+    console.log(this.selectedFile);
   }
 
   addCategory(category: string) {
