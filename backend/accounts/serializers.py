@@ -10,13 +10,20 @@ UserModel = AppUser
 class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserModel
-        fields = ('user_id', 'email', 'username', 'password')  # Explicitly state the fields
-        extra_kwargs = {'password': {'write_only': True}}  # Password should be write-only
+        fields = ('user_id', 'email', 'username', 'password')
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def validate_password(self, value):
+        validate_password(value)
+        return value # Password should be write-only
 
     def create(self, clean_data):
-        return UserModel.objects.create_user(email=clean_data['email'],
-                                             password=clean_data['password'],
-                                             username=clean_data['username'])
+        user = UserModel(email=clean_data['email'],
+                         username=clean_data['username'])
+        user.set_password(clean_data['password'])
+        validate_password(clean_data['password'], user)
+        user.save()
+        return user
 
 
 from django.contrib.auth import get_user_model
