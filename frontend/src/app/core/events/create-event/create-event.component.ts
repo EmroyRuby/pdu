@@ -16,6 +16,7 @@ export class CreateEventComponent implements OnInit {
   newCategory: string = '';
   modalText: string = '';
   errors = "";
+  selectedFile = undefined;
 
   constructor(private fb: FormBuilder, private router: Router, private eventService: EventService) {
     this.createEventForm = this.fb.group({
@@ -45,6 +46,7 @@ export class CreateEventComponent implements OnInit {
         newEvent.created_at = new Date();
         newEvent.updated_at = new Date();
         newEvent.price = this.createEventForm.value.price.toString();
+        newEvent.photo = this.selectedFile;
         console.log(newEvent);
         const eventId = await this.eventService.addEvent(newEvent);
         this.router.navigate(['/event'], {
@@ -76,6 +78,11 @@ export class CreateEventComponent implements OnInit {
       }
       document.getElementById("openModal1")?.click();
     }
+  }
+
+  onFileSelected(event: any){
+    this.selectedFile = event.target.files[0];
+    console.log(this.selectedFile);
   }
 
   addCategory(category: string) {

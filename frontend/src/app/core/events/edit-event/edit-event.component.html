@@ -28,7 +28,7 @@
                 <!-- Event Image -->
                 <div class="form-group mb-3">
                     <label for="photo">Event Image:</label>
-                    <input type="file" class="form-control-file" id="photo" formControlName="photo">
+                    <input type="file" class="form-control-file" id="photo" formControlName="photo" (change)="onFileSelected($event)">
                 </div>
             
                 <!-- Event Location -->
