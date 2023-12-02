@@ -1,8 +1,10 @@
+import pandas as pd
 from django.core.exceptions import ObjectDoesNotExist
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-import pandas as pd
+
 from .models import EventRegistration, Event
+
 
 # from models import Event
 # Assume you have a DataFrame `events` with 'title', 'description', and 'category'
