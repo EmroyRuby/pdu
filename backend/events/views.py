@@ -1,6 +1,6 @@
+import logging
 from datetime import date
 
-from django.utils import timezone
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import permissions, viewsets, status
 from rest_framework.authentication import SessionAuthentication
@@ -13,11 +13,10 @@ from events.mailing_system import send_notification, DELETE_CONTENT, DELETE_SUBJ
 from .models import (Event, EventNotification,
                      EventRegistration, Category, Comment, GuestRegistration)
 from .my_permissions import IsOwnerOrReadOnlyOrSuperuser, CanViewAndPostOnly
+from .recommendation_model import get_recommendations
 from .serializers import (EventSerializer, EventNotificationSerializer,
                           EventRegistrationSerializer,
                           CategorySerializer, CommentSerializer, GuestRegistrationSerializer)
-import logging
-from .recommendation_model import get_recommendations
 
 logger = logging.getLogger('events')
 

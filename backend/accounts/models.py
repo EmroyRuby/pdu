@@ -4,14 +4,14 @@ from django.db import models
 
 
 class AppUserManager(BaseUserManager):
-    def create_user(self, email, username, password=None):
+    def create_user(self, email, username, password=None, is_active=False):
         if not email:
             raise ValueError('An email is required.')
         if not password:
             raise ValueError('A password is required.')
 
         email = self.normalize_email(email)
-        user = self.model(email=email, username=username)
+        user = self.model(email=email, username=username, is_active=is_active)
         user.set_password(password)
         user.save()
         return user
@@ -61,4 +61,4 @@ class AppUser(AbstractBaseUser, PermissionsMixin):
     objects = AppUserManager()
 
     def __str__(self):
-        return self.username
+        return self.email

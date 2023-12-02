@@ -1,73 +1,89 @@
 import os
-
-from django.utils import timezone
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "zpi.settings")
+import random
 import django
+from datetime import timedelta
+from django.utils import timezone
+from django.core.files import File
+
+# Setup Django environment
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "zpi.settings")
 django.setup()
 
-from events.models import Event, EventNotification, EventRegistration, Category, Comment
 from accounts.models import AppUser
-import random
-from faker import Faker
+from events.models import Category, Event, EventRegistration, Comment
 
-fake = Faker()
+category_names = [
+    "Music", "Technology", "Art", "Sports", "Education",
+    "Health & Wellness", "Business", "Food & Drink",
+    "Nature", "Fashion", "Literature", "Gaming",
+    "Travel", "Science", "Cinema", "Theatre",
+    "History", "Photography", "Workshop", "Social"
+]
+categories = [Category.objects.create(name=name) for name in category_names]
 
-# Deleting all data
-Comment.objects.all().delete()
-EventRegistration.objects.all().delete()
-EventNotification.objects.all().delete()
-Event.objects.all().delete()
-Category.objects.all().delete()
-AppUser.objects.all().delete()
-
-
-def create_user():
-    email = fake.email()
-    password = "password123"
-    username = fake.user_name()
-    user = AppUser.objects.create_user(email=email, password=password, username=username)
-    return user
-
-
-def create_event(organizer):
-    title = fake.sentence()
-    description = fake.text()
-    location = fake.city()
-    is_public = random.choice([True, False])
-    price = random.uniform(0, 500)
-    capacity = random.randint(0, 1000)
-    days_ahead = random.randint(1, 365)
-    start_date = timezone.now() + timezone.timedelta(days=days_ahead)
-    end_date = start_date + timezone.timedelta(hours=random.randint(1, 72))
-    event = Event.objects.create(
-        title=title, user=organizer, description=description, location=location,
-        is_public=is_public, price=price, capacity=capacity, registration_end_date=start_date,
-        start_date=start_date, end_date=end_date)
-
-    # Create Categories and associate them with events
-    category, created = Category.objects.get_or_create(name=fake.word())
-    event.categories.add(category)
-
-    return event
+# Creating more realistic events
+event_details = [
+    {"title": "Summer Music Festival", "description": "An outdoor summer music experience."},
+    {"title": "Tech Innovators Conference", "description": "Meet the leading minds in technology."},
+    {"title": "Artists' Gallery Night", "description": "A showcase of local and international artists."},
+    {"title": "Marathon City Run", "description": "A community running event for all ages."},
+    {"title": "Educators' Symposium", "description": "Discussions on the future of education."},
+    {"title": "Health and Wellness Expo", "description": "Explore the latest in health and wellness."},
+    {"title": "Entrepreneurs' Networking Event", "description": "Connect with fellow business owners."},
+    {"title": "International Food Fair", "description": "Taste foods from around the world."},
+    # Add more events as needed
+]
 
 
-num_users = 10
-users = [create_user() for _ in range(num_users)]
+# Helper function to generate random timezone-aware datetime
+def random_date(start, end):
+    delta = end - start
+    int_delta = (delta.days * 24 * 60 * 60) + delta.seconds
+    random_second = random.randint(0, int_delta)
+    return start + timedelta(seconds=random_second)
 
-num_events_per_user = 5
+
+# Creating 25 users
+users = []
+for i in range(1, 26):
+    user = AppUser.objects.create_user(email=f'user{i}@example.com', username=f'user{i}', password='password123',
+                                       is_active=True)
+    users.append(user)
+
+# Creating 8 events
 events = []
-for user in users:
-    events.extend(create_event(user) for _ in range(num_events_per_user))
+for event in event_details:
+    photo_path = f'./media/events/event_photo_{random.randint(1, 8)}.jpg'
+    with open(photo_path, 'rb') as photo_file:
+        photo = File(photo_file, name=os.path.basename(photo_path))
+        new_event = Event.objects.create(
+            title=event["title"],
+            user=random.choice(users),
+            description=event["description"],
+            location=f'{random.choice(["Downtown", "City Park", "Beachfront", "Convention Center", "Town Hall"])}',
+            is_public=random.choice([True, False]),
+            price=random.uniform(0, 100),
+            capacity=random.randint(50, 500),
+            registration_end_date=random_date(timezone.now(), timezone.now() + timedelta(days=30)),
+            start_date=timezone.now() + timedelta(days=random.randint(30, 60)),
+            end_date=timezone.now() + timedelta(days=random.randint(61, 90)),
+            photo=photo
+        )
+    assigned_categories = random.sample(categories, random.randint(2, 5))
+    for category in assigned_categories:
+        new_event.categories.add(category)
+    events.append(new_event)
 
-for event in events:
-    title = fake.sentence()
-    content = fake.text()
-    EventNotification.objects.create(event=event, title=title, content=content)
+for i in range(1, 26):
 
-    user = random.choice(users)
-    is_registered = True
-    EventRegistration.objects.create(event=event, user=user, is_registered=is_registered)
+    # Randomly registering each user for 1-5 events
+    registered_events = random.sample(events, random.randint(1, 5))
+    for event in registered_events:
+        # Check if the user is already registered for the event
+        if not EventRegistration.objects.filter(user=user, event=event).exists():
+            EventRegistration.objects.create(event=event, user=user)
 
-    content = fake.text()
-    Comment.objects.create(user=user, event=event, content=content)
+            # Creating a comment for each event the user is registered for
+            Comment.objects.create(user=user, event=event, content=f'Comment by user {i} on Event {event.id}')
+
+print('Database populated with sample data!')

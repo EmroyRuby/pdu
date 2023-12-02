@@ -5,8 +5,9 @@ from smtplib import SMTPServerDisconnected
 from celery import shared_task
 from django.core.mail import send_mail
 from django.utils import timezone
-from events.models import Event, EventRegistration, GuestRegistration
+
 from events.mailing_system import send_notification
+from events.models import Event, EventRegistration, GuestRegistration
 
 logger = logging.getLogger(__name__)  # Set up logging
 

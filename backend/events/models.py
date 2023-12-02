@@ -9,6 +9,9 @@ class Category(models.Model):
     name = models.CharField(max_length=70)
     objects = models.Manager()
 
+    def __str__(self):
+        return self.name
+
 
 class Event(models.Model):
     title = models.CharField(max_length=70)
@@ -27,6 +30,9 @@ class Event(models.Model):
     categories = models.ManyToManyField(Category)
     objects = models.Manager()
 
+    def __str__(self):
+        return self.title
+
 
 class EventNotification(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
@@ -34,6 +40,9 @@ class EventNotification(models.Model):
     content = models.TextField()
     sent_date = models.DateTimeField(auto_now_add=True)
     objects = models.Manager()
+
+    def __str__(self):
+        return f"Notification: {self.title}"
 
 
 class EventRegistration(models.Model):
@@ -47,6 +56,9 @@ class EventRegistration(models.Model):
     class Meta:
         unique_together = ('user', 'event')  # This ensures that the combination of user and event is unique
 
+    def __str__(self):
+        return f"{self.user} registered on event {self.event}"
+
 
 class Comment(models.Model):
     user = models.ForeignKey(AppUser, on_delete=models.CASCADE)
@@ -56,6 +68,9 @@ class Comment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return f"{self.user} comment on {self.event}"
+
 
 class GuestRegistration(models.Model):
     email = models.EmailField()
@@ -63,4 +78,7 @@ class GuestRegistration(models.Model):
     verified = models.BooleanField(default=False)
     verification_code = models.CharField(max_length=100, blank=True, null=True)
     registration_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.email} registered on event {self.event}"
 
