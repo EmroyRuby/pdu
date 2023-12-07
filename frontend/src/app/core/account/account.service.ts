@@ -102,7 +102,7 @@ export class AccountService {
     try {
       await firstValueFrom(this.http.post<User>(`http://127.0.0.1:8000/api/accounts/register`, userData));
       console.log("Registration successful");
-      return await this.login(email, password);
+      return true;
     } catch (error) {
       console.error("Error during registration:", error);
       return false;

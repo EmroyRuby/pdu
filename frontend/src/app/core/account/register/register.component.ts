@@ -11,6 +11,7 @@ import { AccountService } from '../account.service';
 export class RegisterComponent {
   registerForm: FormGroup;
   showAlert = false;
+  modalText: string = '';
 
   constructor(private fb: FormBuilder, private accountService: AccountService, private router: Router) {
     this.registerForm = this.fb.group({
@@ -44,13 +45,16 @@ export class RegisterComponent {
   async register() {
     if (this.registerForm.valid) {
       if (await this.accountService.register(this.registerForm.value.email, this.registerForm.value.password)) {
-        this.accountService.register(this.registerForm.value.email, this.registerForm.value.password);
-        await this.accountService.login(this.registerForm.value.email, this.registerForm.value.password)
-        this.router.navigate(['/profile']);
+        this.modalText = "Please go to your email and verify your account";
+        document.getElementById("openModal1")?.click();
       }else {
           this.showAlert = true;
         
       }
     }
+  }
+
+  goToLogin(){
+    this.router.navigate(['/login']);
   }
 }
