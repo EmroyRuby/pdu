@@ -24,7 +24,7 @@ export class LoginComponent implements OnInit {
   async login() {
     if (await this.accountService.login(this.loginForm.value.email, this.loginForm.value.password)) {
       this.loginFailed = false;
-      this.router.navigate(['/profile']);
+      this.router.navigate(['/home']);
     } else {
       this.loginFailed = true;
     }

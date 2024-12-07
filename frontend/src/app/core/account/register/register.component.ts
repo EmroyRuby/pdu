@@ -11,7 +11,7 @@ import { AccountService } from '../account.service';
 export class RegisterComponent {
   registerForm: FormGroup;
   showAlert = false;
-  modalText: string = '';
+  modalText: string = 'ala ma kota';
 
   constructor(private fb: FormBuilder, private accountService: AccountService, private router: Router) {
     this.registerForm = this.fb.group({

@@ -18,6 +18,14 @@
               <div *ngIf="registerForm.get('password')?.hasError('required') && registerForm.get('password')?.touched" class="text-danger">
                 Password is required
               </div>
+              <div>
+                Password must have the following:
+                <ul>
+                  <li>min. of 8 characters</li>
+                  <li>not be similar to user email</li>
+                  <li>must have at least one number</li>
+                </ul>
+              </div>
             </div>
             <div class="form-group">
               <label for="confirmPassword">Confirm Password</label>
