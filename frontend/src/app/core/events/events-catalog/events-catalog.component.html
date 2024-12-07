@@ -1,6 +1,9 @@
 <div class="container">
   <h1 class="my-4">Upcoming Events</h1>
   <!-- Search Bar -->
+  <div class="my-4">
+    <button type="button" class="btn btn-light btn-lg p-5 mx-3 mb-3 fw-bold" [routerLink]="['/create-event']" [disabled]="!isLoggedIn()">Create an event</button>
+  </div>
   <form class="d-flex mb-3" role="search">
     <input class="form-control me-2" type="search" placeholder="Search by title" (input)="filterbyTitle(searchTitle.value)" #searchTitle>
   </form>

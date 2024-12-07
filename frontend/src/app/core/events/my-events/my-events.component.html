@@ -12,6 +12,9 @@
           <label class="btn btn-light" for="organiser">Organiser</label>
         </div>
      </div>
+    <div *ngIf="role == 2">
+        <button type="button" class="btn btn-light btn-lg p-5 mx-3 mb-3 fw-bold" [routerLink]="['/create-event']">Create an event</button>
+    </div>
     <!-- Upcoming Events Section -->
     <div class="d-flex">
         <h4>Upcoming Events:</h4>

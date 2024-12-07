@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { EventService } from '../event.service';
+import { AccountService } from '../../account/account.service';
 import { Event, EventsFilter } from '../../models';
 
 @Component({
@@ -27,7 +28,11 @@ export class EventsCatalogComponent implements OnInit {
   isDropdownOpen = false;
   availabilityFilter: string = 'All';
 
-  constructor(private router: Router, private route: ActivatedRoute, private eventService: EventService) { 
+  constructor(private router: Router, private route: ActivatedRoute, private eventService: EventService, private accountService: AccountService) { 
+  }
+
+  isLoggedIn(): boolean {
+    return this.accountService.isLoggedIn();
   }
 
   async ngOnInit() {

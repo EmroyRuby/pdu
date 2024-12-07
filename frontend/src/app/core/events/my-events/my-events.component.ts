@@ -12,6 +12,7 @@ export class MyEventsComponent implements OnInit {
   upcomingEvents: Event[] = [];
   pastEvents: Event[] = [];
   isDropdownOpen = false;
+  role = 1;
 
   constructor(private router: Router, private route: ActivatedRoute, private eventService: EventService) { 
   }
@@ -30,6 +31,7 @@ export class MyEventsComponent implements OnInit {
   }
 
   async filterbyRole(role: number) {
+      this.role = role;
       const events = await this.eventService.listMyEvents(role);
       this.upcomingEvents = events.filter(event => new Date(event.start_date) > new Date());
       this.upcomingEvents.sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime());
