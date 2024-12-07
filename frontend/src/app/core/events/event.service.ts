@@ -184,8 +184,11 @@ export class EventService {
       }
       // Create FormData object and append form data
       const formData: any = new FormData();
+      console.log("before adding anything:" + formData.toString());
 
       formData.append('title', event.title);
+      console.log("title: " + event.title);
+      console.log("after title: " + formData.get('title'));
       formData.append('description', event.description);
       formData.append('location', event.location);
       formData.append('is_public', event.is_public.toString());
@@ -209,9 +212,6 @@ export class EventService {
       console.log(formData);
       const options = {
         withCredentials: true,
-        headers: {
-          'X-CSRFToken': this.accountService.getCsrfToken(),
-        },
       };
       const eventResp = await firstValueFrom(
         this.http.post<Event>(`http://127.0.0.1:8000/api/events/`, formData, options).pipe()

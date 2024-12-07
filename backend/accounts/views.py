@@ -40,10 +40,11 @@ class UserRegister(APIView):
             # Generate a verification code
             verification_code = str(uuid.uuid4())
             user.verification_code = verification_code
+            user.is_active = True
             user.save()
 
             # Send verification email
-            send_verification_email(user.email, verification_code, user_id=user.user_id)  # Implement this function
+            #send_verification_email(user.email, verification_code, user_id=user.user_id)  # Implement this function
             # Include 'id' in the response data
             response_data = serializer.data
             response_data['id'] = user.user_id

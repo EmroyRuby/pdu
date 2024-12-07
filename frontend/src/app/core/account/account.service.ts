@@ -23,6 +23,7 @@ export class AccountService {
   }
 
   getCsrfToken(){
+    console.log('cookie:' + this.cookieService.get("csrftoken"));
     return this.cookieService.get("csrftoken");
   }
 
@@ -129,12 +130,11 @@ export class AccountService {
   // Change user password
   async changePassword(old_password: string, new_password: string) {
     try {
+      console.log("cookies:")
+      console.log(document.cookie)
       await firstValueFrom(this.http.post(`http://127.0.0.1:8000/api/accounts/password-change`, 
         {old_password: old_password, new_password: new_password}, {
         withCredentials: true,
-        headers: {
-          'X-CSRFToken': this.getCsrfToken(),
-        },
       }));
       console.log("Changed password");
     } catch (error) {

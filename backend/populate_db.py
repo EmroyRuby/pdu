@@ -45,15 +45,15 @@ def random_date(start, end):
 
 # Creating 25 users
 users = []
-for i in range(1, 26):
-    user = AppUser.objects.create_user(email=f'user{i}@example.com', username=f'user{i}', password='password123',
-                                       is_active=True)
-    users.append(user)
+#for i in range(1, 26):
+#    user = AppUser.objects.create_user(email=f'user{i}@example.com', username=f'user{i}', password='password123',
+#                                       is_active=True)
+#    users.append(user)
 
 # Creating 8 events
 events = []
 for event in event_details:
-    photo_path = f'./media/events/event_photo_{random.randint(1, 8)}.jpg'
+    photo_path = f'/var/www/zpi/media/events/event_photo_{random.randint(1, 8)}.jpg'
     with open(photo_path, 'rb') as photo_file:
         photo = File(photo_file, name=os.path.basename(photo_path))
         new_event = Event.objects.create(
