@@ -46,7 +46,7 @@ export class RegisterComponent {
     if (this.registerForm.valid) {
       if (await this.accountService.register(this.registerForm.value.email, this.registerForm.value.password)) {
         this.modalText = "Please go to your email and verify your account";
-        document.getElementById("openModal1")?.click();
+        //document.getElementById("openModal1")?.click();
         this.router.navigate(['/login']);
       }else {
           this.showAlert = true;
