@@ -16,6 +16,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { EditEventComponent } from './events/edit-event/edit-event.component';
 import { ProfileComponent } from './account/profile/profile.component';
 import { EditProfileComponent } from './account/edit-profile/edit-profile.component';
+import { HelpComponent } from './account/help/help.component';  // Add this import
+
 
 @NgModule({
   imports: [
@@ -43,7 +45,8 @@ import { EditProfileComponent } from './account/edit-profile/edit-profile.compon
     EventDetailsComponent,
     EditEventComponent,
     SignUpComponent,
-    CreateEventComponent
+    CreateEventComponent,
+    HelpComponent
   ]
 })
 export class CoreModule { }
