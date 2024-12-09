@@ -275,6 +275,12 @@ export class EventService {
       if (updatedEvent.photo instanceof File) {
         formData.append('photo', updatedEvent.photo, updatedEvent.photo?.name);
       }
+      console.log("title:")
+      console.log("event from event: " + updatedEvent.title);
+      console.log("event: from form data " + formData.get("title"));
+      console.log("location:")
+      console.log("event from event: " + updatedEvent.location);
+      console.log("event: from form data " + formData.get("location"));
       const options = {
         withCredentials: true,
         headers: {

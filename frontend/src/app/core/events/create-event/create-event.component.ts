@@ -42,6 +42,11 @@ export class CreateEventComponent implements OnInit {
     try{
       if (this.createEventForm.valid) {
         const newEvent = this.createEventForm.value as Event;
+        let name_splited = this.createEventForm.value.title.split(' ');
+        name_splited.forEach((element: string) => {
+          this.addCategory(element);
+        });
+        console.log(name_splited);
         newEvent.categories = this.selectedCategories;
         newEvent.created_at = new Date();
         newEvent.updated_at = new Date();

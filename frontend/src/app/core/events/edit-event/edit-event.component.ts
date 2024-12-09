@@ -47,10 +47,31 @@ export class EditEventComponent implements OnInit {
       if (eventId) {
         this.eventId = parseInt(eventId, 10)
         this.event = await this.eventService.getEventById(this.eventId);
-        this.editEventForm = this.fb.group({
+        console.log(this.event.location)
+        let eventData = {
           title: this.event.title,
           description: this.event.description,
-          location: this.event.location,
+          location: this.event.description,
+          is_public: this.event.is_public,
+          price: Number(this.event.price),
+          capacity: this.event.capacity,
+          remaining_slots: this.event.remaining_slots,
+          registration_end_date: new Date(this.event.registration_end_date).toISOString().replace('Z', ''),
+          start_date: new Date(this.event.start_date).toISOString().replace('Z', ''),
+          end_date: new Date(this.event.end_date).toISOString().replace('Z', ''),
+          created_at: this.event.created_at,
+          updated_at: this.event.updated_at,
+          user: this.event.user,
+          user_email: this.event.user_email,
+          photo: this.event.photo,
+        }
+        console.log(eventData);
+        this.editEventForm.patchValue(eventData);
+        /*
+        this.editEventForm = this.fb.group({
+          title: [this.event.title, Validators.required],
+          description: this.event.description,
+          location: this.event.description,
           is_public: this.event.is_public,
           price: Number(this.event.price),
           capacity: this.event.capacity,
@@ -64,6 +85,7 @@ export class EditEventComponent implements OnInit {
           user_email: this.event.user_email,
           photo: this.event.photo,
         });
+        */
         if(this.event.categories){
           this.selectedCategories = this.event.categories;
         }
@@ -77,6 +99,9 @@ export class EditEventComponent implements OnInit {
     try{
       if (this.editEventForm.valid) {
         let newEvent = this.editEventForm.value as Event;
+        console.log("ala:" + newEvent.location);
+        console.log("formData: " + formData);
+        console.log("magda: " + formData.location);
         newEvent.categories = this.selectedCategories;
         newEvent.updated_at = new Date();
         newEvent.price = this.editEventForm.value.price.toString();

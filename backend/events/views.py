@@ -106,6 +106,8 @@ class EventViewSet(BaseViewSet):
 
         serializer = self.get_serializer(event, data=request.data, partial=kwargs.pop('partial', False))
         serializer.is_valid(raise_exception=True)
+        logger.info('serializer')
+        logger.info(serializer)
         self.perform_update(serializer)
 
         # After updating, check if the specific fields have changed
