@@ -1,0 +1,9 @@
+<div class="help-container">
+    <h1>Help - Video Guides</h1>
+    <ul>
+      <li *ngFor="let link of helpLinks">
+        <a [href]="link.url" target="_blank" class="help-link">{{ link.title }}</a>
+      </li>
+    </ul>
+  </div>
+  

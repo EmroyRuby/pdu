@@ -1,0 +1,45 @@
+/* Center the container in the viewport */
+.help-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 60vh;  /* Adjusted to 80vh for more flexibility */
+    width: 50vh;  /* Width automatically adjusts based on content */
+    background-color: #fff;  /* White background for the square */
+    padding: 20px;
+    border-radius: 15px;  /* Optional: rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  /* Optional: shadow for a modern look */
+    max-width: 800px;  /* Max width for the container */
+    margin: 0 auto;  /* Center horizontally */
+    text-align: center;  /* Center the text inside the container */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);  /* Ensures the container is centered both vertically and horizontally */
+  }
+  
+  /* Title styling */
+  h1 {
+    color: black;  /* Black color for the title */
+    font-size: 48px;  /* Big letters */
+    font-weight: bold;
+    margin-bottom: 20px;  /* Space between the title and the links */
+    word-wrap: break-word;  /* Handle long words gracefully */
+  }
+  
+  /* Link styling */
+  .help-link {
+    color: black;  /* Black color for the links */
+    text-decoration: none;
+    font-size: 24px;  /* Large font for the links */
+    display: block;
+    margin-bottom: 20px;  /* Space between the links */
+    transition: color 0.3s ease, text-decoration 0.3s ease;  /* Smooth hover effect */
+  }
+  
+  .help-link:hover {
+    text-decoration: underline;
+    color: #6A0DAD;  /* Purple color on hover */
+  }
+  

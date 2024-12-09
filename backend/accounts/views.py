@@ -13,6 +13,16 @@ from events.tasks import send_verification_email
 from .models import AppUser
 from .serializers import UserRegisterSerializer, UserLoginSerializer, UserSerializer, PasswordChangeSerializer
 
+class HelpView(APIView):
+    """
+    GET:
+    Provides helpful links for the user (like video guides).
+    """
+    
+    def get(self, request):
+        
+        
+        return Response(status=status.HTTP_200_OK)
 
 class UserRegister(APIView):
     """

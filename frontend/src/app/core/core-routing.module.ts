@@ -13,6 +13,8 @@ import { SignUpComponent } from './events/sign-up/sign-up.component';
 import { CreateEventComponent } from './events/create-event/create-event.component';
 import { EditProfileComponent } from './account/edit-profile/edit-profile.component';
 import { EditEventComponent } from './events/edit-event/edit-event.component';
+import { HelpComponent } from './account/help//help.component';  // Add this import
+
 
 const routes: Routes = [
   {
@@ -61,6 +63,10 @@ const routes: Routes = [
         path: 'create-event',
         component: CreateEventComponent,
         canActivate: [AuthGuard] 
+      },
+      {
+        path: 'help',  // Add this line for the help component
+        component: HelpComponent  // This points to the help component
       }
     ]
   }, 
