@@ -9,8 +9,20 @@
         <li class="nav-item">
           <a class="nav-link active" href="#">Home</a>
         </li>
+        <!-- Alternative 1 
         <li class="nav-item">
           <a class="nav-link" href="/events">Events</a>
+        </li>
+      -->
+        <!-- Alternative 2 -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Events
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="/events">Events</a></li>
+            <li><a class="dropdown-item" *ngIf="isLoggedIn()" href="/create-event">Create an event</a></li>
+          </ul>
         </li>
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" *ngIf="isLoggedIn()" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -29,6 +41,11 @@
         <li class="nav-item">
           <a class="nav-link" href="/login" *ngIf="!isLoggedIn()">
             <i class="fa fa-sign-in"></i> Log In
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/register" *ngIf="!isLoggedIn()">
+            <i class="fa fa-sign-in"></i> Register
           </a>
         </li>
         <li class="nav-item">
